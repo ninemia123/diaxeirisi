@@ -3292,6 +3292,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 <label for="totalContributions2014">Συνολικές Εισφορές μετα 2014 (€):</label>
                 <input type="number" id="totalContributions2014" placeholder="Π.χ. 15000">
             </div>
+
+            <!-- ΝΕΟ: Πίνακας Δεικτών Αναπροσαρμογής Εισφορών (g) -->
+            <div class="form-group" id="gFactorSection" style="border:1px solid #ccc;border-radius:5px;padding:0.75rem;margin-bottom:1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="const b=document.getElementById('gFactorGrid'); b.style.display = (b.style.display==='none'?'grid':'none');">
+                    <label style="margin:0;font-weight:bold;">📈 Δείκτες Αναπροσαρμογής Εισφορών (g) ανά Έτος</label>
+                    <span style="font-size:0.85rem;color:#17a2b8;">(προβολή/απόκρυψη)</span>
+                </div>
+                <small>Κάθε ετήσια εισφορά πολλαπλασιάζεται με το γινόμενο των δεικτών g από το έτος της μέχρι το Έτος Εξόδου. Όπου δεν υπάρχει γνωστός δείκτης, μπαίνει μονάδα (1). Μπορείτε να τους αλλάξετε όταν μάθετε νεότερες τιμές.</small>
+                <div id="gFactorGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(110px,1fr));gap:0.5rem;margin-top:0.5rem;"></div>
+                <button type="button" onclick="if(typeof calculateAndTransferPost2014Contributions==='function'){calculateAndTransferPost2014Contributions();}" style="margin-top:0.75rem;background:#28a745;color:white;padding:0.5rem 1rem;border:none;border-radius:5px;cursor:pointer;">🔁 Επανυπολογισμός Εισφορών με τους Δείκτες g</button>
+                <div style="margin-top:0.75rem;font-size:0.85rem;background:#f5f5f5;padding:0.5rem;border-radius:4px;">
+                    <div>Έτος Εξόδου που χρησιμοποιήθηκε: <strong id="gFactorExitYearUsed">-</strong></div>
+                    <div>Σύνολο ΧΩΡΙΣ δείκτες g (έλεγχος): <strong id="gFactorRawTotal">-</strong>€</div>
+                    <div>Σύνολο ΜΕ δείκτες g (τελικό): <strong id="gFactorAdjustedTotal">-</strong>€</div>
+                </div>
+            </div>
             
             <div class="average-section">
                 <p>Μέσος Όρος Αποδοχών: <strong id="averageResult">0.00€</strong></p>
@@ -8440,13 +8456,6 @@ function updateChildrenAllowances() {
     // Αποθήκευση στις τοπικές ρυθμίσεις
     saveUserValues();
 }
-// ΝΕΟ ΕΠΙΔΟΜΑ - από 2026
-if (year >= 2026) {
-    const newAllowance = parseFloat(document.getElementById('allepidoma').value) || 0;
-    allowances += newAllowance;
-    console.log(`💰 Νέο Επίδομα ${year}: ${newAllowance}€`);
-}
-
 
 // Σύνδεση με τη λειτουργία διαχείρισης επιδομάτων
 function connectWithAllowanceManagement() {
@@ -8651,6 +8660,99 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 
+// ============================================================
+// ΝΕΟ: ΠΙΝΑΚΑΣ ΔΕΙΚΤΩΝ ΑΝΑΠΡΟΣΑΡΜΟΓΗΣ ΕΙΣΦΟΡΩΝ (g) 2017-2035
+// ============================================================
+const G_FACTOR_YEAR_MIN = 2017;
+const G_FACTOR_YEAR_MAX = 2035;
+
+// Γνωστές τιμές (1 + ποσοστό). Τα υπόλοιπα έτη προεπιλέγονται σε 1 (μονάδα)
+// μέχρι ο χρήστης να μάθει και να συμπληρώσει τον πραγματικό δείκτη.
+const G_FACTOR_DEFAULTS = {
+    2017: 1 + 0.0280,
+    2018: 1 + 0.1170,
+    2019: 1,
+    2020: 1,
+    2021: 1 + 0.0425,
+    2022: 1,
+    2023: 1 + 0.1326
+    // 2024-2035: άγνωστοι ακόμα -> μονάδα (βλ. getGFactor)
+};
+
+// Δημιουργία των πεδίων εισαγωγής του πίνακα g στην οθόνη
+function buildGFactorGrid() {
+    const grid = document.getElementById('gFactorGrid');
+    if (!grid || grid.dataset.built === '1') return;
+
+    let html = '';
+    for (let year = G_FACTOR_YEAR_MIN; year <= G_FACTOR_YEAR_MAX; year++) {
+        const defVal = G_FACTOR_DEFAULTS.hasOwnProperty(year) ? G_FACTOR_DEFAULTS[year] : 1;
+        html += `
+            <div style="display:flex;flex-direction:column;">
+                <label for="gfactor-${year}" style="font-size:0.8rem;">${year}g</label>
+                <input type="number" id="gfactor-${year}" value="${defVal}" step="0.0001">
+            </div>`;
+    }
+    grid.innerHTML = html;
+    grid.dataset.built = '1';
+}
+document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(buildGFactorGrid, 300);
+});
+
+// Επιστρέφει τον δείκτη g ενός έτους (από το πεδίο αν υπάρχει, αλλιώς προεπιλογή, αλλιώς μονάδα)
+function getGFactor(year) {
+    const input = document.getElementById(`gfactor-${year}`);
+    if (input && input.value !== '') {
+        const v = parseFloat(input.value);
+        if (!isNaN(v)) return v;
+    }
+    return G_FACTOR_DEFAULTS.hasOwnProperty(year) ? G_FACTOR_DEFAULTS[year] : 1;
+}
+
+// Γινόμενο των δεικτών g από το fromYear μέχρι το toYear (συμπεριλαμβανομένων)
+function getGFactorProduct(fromYear, toYear) {
+    let product = 1;
+    if (toYear < fromYear) return product;
+    for (let y = fromYear; y <= toYear; y++) {
+        product *= getGFactor(y);
+    }
+    return product;
+}
+
+// Έτος Εξόδου: παίρνεται από το πεδίο "Έτος εξόδου" (selected-year) ΚΑΙ ελέγχεται
+// έναντι του τελευταίου έτους (2014-2035) που έχει συμπληρωμένες αποδοχές, ώστε να
+// μην "κοπεί" ποτέ το γινόμενο των δεικτών g νωρίτερα από τα πραγματικά δεδομένα.
+function getEfapaxExitYear() {
+    const candidates = [2014];
+
+    const selectedYearEl = document.getElementById('selected-year');
+    if (selectedYearEl && selectedYearEl.value) {
+        const y = parseInt(selectedYearEl.value);
+        if (!isNaN(y)) candidates.push(y);
+    }
+
+    for (let year = 2014; year <= 2035; year++) {
+        const earningsInput = document.getElementById(`earnings-${year}`);
+        if (earningsInput && earningsInput.value !== '') {
+            candidates.push(year);
+        }
+    }
+
+    return Math.max.apply(null, candidates);
+}
+
+// Ασφαλής υπολογισμός γινομένου δεικτών g: σε περίπτωση απρόβλεπτου σφάλματος
+// επιστρέφει 1 (ώστε να ΜΗΝ χαθεί ποτέ το ποσό των εισφορών μετά το 2014).
+function safeGFactorProduct(fromYear, toYear) {
+    try {
+        return getGFactorProduct(fromYear, toYear);
+    } catch (e) {
+        console.error('Σφάλμα υπολογισμού δείκτη g:', e);
+        return 1;
+    }
+}
+
 // Συνάρτηση μεταφοράς δεδομένων από ΥΠΟΛ ΣΥΝΤΑΞΗΣ σε ΕΦΑΠΑΞ
 function transferPensionToEfapaxData() {
     try {
@@ -8679,12 +8781,16 @@ function transferPensionToEfapaxData() {
 
 
      // Υπολογισμός συνολικών εισφορών μετά το 2014
+        // ΚΑΘΕ ετήσια εισφορά πολλαπλασιάζεται με το γινόμενο των δεικτών g
+        // από το έτος της μέχρι το Έτος Εξόδου (βλ. πίνακα δεικτών g).
         let totalContributions = 0;
+        const exitYearForG = getEfapaxExitYear();
        for (let year = 2014; year <= 2035; year++) {
             const earningsInput = document.getElementById(`earnings-${year}`);
             if (earningsInput && earningsInput.value) {
                 const earnings = parseFloat(earningsInput.value) || 0;
-                totalContributions += earnings * 0.04;
+                const gProduct = safeGFactorProduct(year, exitYearForG);
+                totalContributions += earnings * 0.04 * gProduct;
             }
         }
         
@@ -8774,6 +8880,8 @@ function updateSingleEfapaxYear(year, value) {
 // Υπολογισμός εισφορών μετά το 2014
 function calculateAndTransferPost2014Contributions() {
     let totalContributions = 0;
+    let totalContributionsRaw = 0; // Έλεγχος: χωρίς δείκτες g
+    const exitYearForG = getEfapaxExitYear();
     
     for (let year = 2014; year <= 2035; year++) {
         const earningsInput = document.getElementById(`earnings-${year}`);
@@ -8789,9 +8897,19 @@ function calculateAndTransferPost2014Contributions() {
                 earnings = Math.max(0, earnings - purchaseAmount);
             }
             
-            totalContributions += earnings * 0.04;
+            // Πολλαπλασιασμός με το γινόμενο των δεικτών g από το έτος μέχρι το Έτος Εξόδου
+            const gProduct = safeGFactorProduct(year, exitYearForG);
+            totalContributionsRaw += earnings * 0.04;
+            totalContributions += earnings * 0.04 * gProduct;
         }
     }
+
+    const exitYearDisplay = document.getElementById('gFactorExitYearUsed');
+    const rawTotalDisplay = document.getElementById('gFactorRawTotal');
+    const adjustedTotalDisplay = document.getElementById('gFactorAdjustedTotal');
+    if (exitYearDisplay) exitYearDisplay.textContent = exitYearForG;
+    if (rawTotalDisplay) rawTotalDisplay.textContent = totalContributionsRaw.toFixed(2);
+    if (adjustedTotalDisplay) adjustedTotalDisplay.textContent = totalContributions.toFixed(2);
     
     const contributionsInput = document.getElementById('totalContributions2014');
     if (contributionsInput) {
@@ -9636,6 +9754,8 @@ function transferPensionToEfapaxDataWithDeduction() {
         
         // 3. ΕΙΣΦΟΡΕΣ ΜΕΤΑ 2014
         let totalContributions = 0;
+        let totalContributionsRaw = 0; // Έλεγχος: χωρίς δείκτες g
+        const exitYearForG = getEfapaxExitYear();
        for (let year = 2014; year <= 2035; year++) {
             const earningsInput = document.getElementById(`earnings-${year}`);
             if (earningsInput && earningsInput.value) {
@@ -9645,9 +9765,19 @@ function transferPensionToEfapaxDataWithDeduction() {
                     earnings = Math.max(0, earnings - purchaseAmount20);
                 }
                 
-                totalContributions += earnings * 0.04;
+                // Πολλαπλασιασμός με το γινόμενο των δεικτών g από το έτος μέχρι το Έτος Εξόδου
+                const gProduct = safeGFactorProduct(year, exitYearForG);
+                totalContributionsRaw += earnings * 0.04;
+                totalContributions += earnings * 0.04 * gProduct;
             }
         }
+
+        const exitYearDisplay = document.getElementById('gFactorExitYearUsed');
+        const rawTotalDisplay = document.getElementById('gFactorRawTotal');
+        const adjustedTotalDisplay = document.getElementById('gFactorAdjustedTotal');
+        if (exitYearDisplay) exitYearDisplay.textContent = exitYearForG;
+        if (rawTotalDisplay) rawTotalDisplay.textContent = totalContributionsRaw.toFixed(2);
+        if (adjustedTotalDisplay) adjustedTotalDisplay.textContent = totalContributions.toFixed(2);
         
         document.getElementById('totalContributions2014').value = totalContributions.toFixed(2);
         
