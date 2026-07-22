@@ -2860,7 +2860,7 @@ https://www.opengov.gr/ypes/?p=8739<p>
                             <tr>
                                 <th>Έτος</th>
                                 <th>Συντάξιμες Αποδοχές (€)</th>
-                                <th>Δείκτης Τιμών Καταναλωτή</th>
+                                <th>ΔΕΙΚΤΗΣ</th>
                                 <th>Αναπροσαρμοσμένες Αποδοχές (€)</th>
                                 <th>ΔΜ (%)</th>
                                 <th>Μηνιαίος Μισθός μετά ΔΜ</th>
@@ -2889,7 +2889,7 @@ https://www.opengov.gr/ypes/?p=8739<p>
 
                 <!-- ΝΕΟ: Διαχείριση ΔΤΚ -->
                 <div class="shift-types-management" style="margin-top: 1.5rem;">
-                    <h4>⚙️ Διαχείριση ΔΤΚ (Δείκτης Τιμών Καταναλωτή)</h4>
+                    <h4>⚙️ Διαχείριση ΔΤΚ (ΔΕΙΚΤΗΣ)</h4>
                     <p>Εδώ μπορείτε να τροποποιήσετε τις τιμές του ΔΤΚ για κάθε έτος</p>
                     
                     <div class="dtk-management-grid" id="dtk-management-container">
@@ -4910,6 +4910,15 @@ function setup20000708Events() {
             input.addEventListener('change', calculateTotalService);
         }
     });
+
+    // Όταν αλλάζει η Ημερομηνία Εξόδου, ξαναϋπολογίζουμε τις αναπροσαρμοσμένες
+    // αποδοχές στην ΥΠΟΛ ΣΥΝΤΑΞΗΣ, αφού το έτος εξόδου καθορίζει το γινόμενο των δεικτών.
+    const exitDateInputForDtk = document.getElementById('service-end-date');
+    if (exitDateInputForDtk) {
+        exitDateInputForDtk.addEventListener('change', function() {
+            if (typeof updatePensionableEarnings === 'function') updatePensionableEarnings();
+        });
+    }
     
     // Έλεγχος custom recognition date
     const customCheckbox = document.getElementById('custom-recognition-date');
@@ -4999,14 +5008,54 @@ let allowancesData = {
 };
         // Δεδομένα για ΥΠΟΛ ΣΥΝΤΑΞΗΣ - Τώρα με δυνατότητα επεξεργασίας
       let dtkData = JSON.parse(localStorage.getItem('dtkData')) || {
-    "2002": 1.32, "2003": 1.27, "2004": 1.24, "2005": 1.20, "2006": 1.16,
-    "2007": 1.13, "2008": 1.08, "2009": 1.07, "2010": 1.02, "2011": 1.00,
-    "2012": 1.00, "2013": 1.00, "2014": 1.00, "2015": 1.01, "2016": 1.02,
-    "2017": 1.01, "2018": 1.00, "2019": 1.17, "2020": 1.19, "2021": 1.17,
-    "2022": 1.07, "2023": 1.03, "2024": 1.00, "2025": 1.00, "2026": 1.00,
+    "2002": 1.000, "2003": 1.035, "2004": 1.029, "2005": 1.035, "2006": 1.032,
+    "2007": 1.029, "2008": 1.042, "2009": 1.012, "2010": 1.047, "2011": 1.033,
+    "2012": 1.015, "2013": 1.000, "2014": 1.000, "2015": 1.000, "2016": 1.000,
+    "2017": 1.011, "2018": 1.009, "2019": 1.003, "2020": 1.001, "2021": 1.012,
+    "2022": 1.096, "2023": 1.035, "2024": 1.027, "2025": 1.024, "2026": 1.00,
     "2027": 1.00, "2028": 1.00, "2029": 1.00, "2030": 1.00, "2031": 1.00,
     "2032": 1.00, "2033": 1.00, "2034": 1.00, "2035": 1.00
 };
+
+// Καθορίζει το έτος εξόδου/συνταξιοδότησης με σειρά προτεραιότητας:
+// 1) Ημερομηνία Εξόδου (πεδίο "service-end-date" στην καρτέλα 2000/07/08)
+// 2) Dropdown "Έτος εξόδου" (selected-year) στην ΥΠΟΛ ΣΥΝΤΑΞΗΣ
+// 3) 2035 ως τελευταία επιλογή ασφαλείας
+function getPensionExitYear() {
+    try {
+        const endDateEl = document.getElementById('service-end-date');
+        if (endDateEl && endDateEl.value) {
+            const exitDate = parseDateInput(endDateEl.value);
+            if (exitDate) return exitDate.getFullYear();
+        }
+    } catch (e) {}
+
+    const selectedYearEl = document.getElementById('selected-year');
+    if (selectedYearEl && selectedYearEl.value) {
+        const y = parseInt(selectedYearEl.value);
+        if (!isNaN(y)) return y;
+    }
+
+    return 2035;
+}
+
+// Γινόμενο των δεικτών από το fromYear μέχρι το toYear (συμπεριλαμβανομένων).
+// Χρησιμοποιείται ώστε οι αναπροσαρμοσμένες αποδοχές ενός έτους να πολλαπλασιάζονται
+// με τον δείκτη του ΙΔΙΟΥ έτους ΚΑΙ όλων των επόμενων ετών, έως και το προηγούμενο
+// του έτους συνταξιοδότησης (σύμφωνα με άρθρο 8 παρ.4 ν.4387/2016).
+// Αν δεν δοθεί ρητά toYear, υπολογίζεται αυτόματα ως (έτος εξόδου - 1).
+// Αν το γινόμενο βγει κάτω από τη μονάδα, επιστρέφεται 1 (η αναπροσαρμογή είναι πάντα προσαύξηση, ποτέ μείωση).
+function getDtkProduct(fromYear, toYear) {
+    if (toYear === undefined) {
+        toYear = getPensionExitYear() - 1;
+    }
+    if (toYear < fromYear) return 1;
+    let product = 1;
+    for (let y = fromYear; y <= toYear; y++) {
+        product *= (dtkData[y] !== undefined ? dtkData[y] : 1);
+    }
+    return product < 1 ? 1 : product;
+}
 
         // Percentage table data
        let percentageData = [
@@ -5205,18 +5254,18 @@ function getMoveableHolidays(year) {
         function resetDtkValues() {
     if (confirm('Θέλετε σίγουρα να επαναφέρετε τις τιμές ΔΤΚ στις προεπιλεγμένες;')) {
         dtkData = {
-            "2002": 1.32, "2003": 1.27, "2004": 1.24, "2005": 1.20, "2006": 1.16,
-            "2007": 1.13, "2008": 1.08, "2009": 1.07, "2010": 1.02, "2011": 1.00,
-            "2012": 1.00, "2013": 1.00, "2014": 1.00, "2015": 1.01, "2016": 1.02,
-            "2017": 1.01, "2018": 1.00, "2019": 1.17, "2020": 1.19, "2021": 1.17,
-            "2022": 1.07, "2023": 1.03, "2024": 1.00, "2025": 1.00, "2026": 1.00,
+            "2002": 1.000, "2003": 1.035, "2004": 1.029, "2005": 1.035, "2006": 1.032,
+            "2007": 1.029, "2008": 1.042, "2009": 1.012, "2010": 1.047, "2011": 1.033,
+            "2012": 1.015, "2013": 1.000, "2014": 1.000, "2015": 1.000, "2016": 1.000,
+            "2017": 1.011, "2018": 1.009, "2019": 1.003, "2020": 1.001, "2021": 1.012,
+            "2022": 1.096, "2023": 1.035, "2024": 1.027, "2025": 1.024, "2026": 1.00,
             "2027": 1.00, "2028": 1.00, "2029": 1.00, "2030": 1.00, "2031": 1.00,
             "2032": 1.00, "2033": 1.00, "2034": 1.00, "2035": 1.00
         };
         saveDtkData();
         initializePensionableEarningsTable();
         initializeDtkManagement();
-        alert('Οι τιμές ΔΤΚ επαναφέρθηκαν επιτυχώς με 2 δεκαδικά!');
+        alert('Οι τιμές ΔΕΙΚΤΗ επαναφέρθηκαν επιτυχώς!');
     }
 }
 
@@ -5267,15 +5316,15 @@ function getMoveableHolidays(year) {
                     // Στη συνάρτηση initializeDtkManagement()
 const yearInput = document.createElement('input');
 yearInput.type = 'number';
-yearInput.step = '0.01';  // Βήμα 0.01 (2 δεκαδικά)
-yearInput.value = (dtkData[year] || 1.00).toFixed(2);
+yearInput.step = '0.00001';  // Βήμα 0.00001 (5 δεκαδικά)
+yearInput.value = (dtkData[year] || 1.00).toFixed(5);
 yearInput.style.padding = '0.25rem';
 yearInput.style.border = '1px solid #ddd';
 yearInput.style.borderRadius = '3px';
 yearInput.addEventListener('change', function() {
-    // Στρογγυλοποίηση σε 2 δεκαδικά
-    let newValue = Math.round(parseFloat(this.value) * 100) / 100;
-    this.value = newValue.toFixed(2);
+    // Στρογγυλοποίηση σε 5 δεκαδικά
+    let newValue = Math.round(parseFloat(this.value) * 100000) / 100000;
+    this.value = newValue.toFixed(5);
     dtkData[year] = newValue;
     saveDtkData();
     updatePensionableEarnings();
@@ -5320,8 +5369,8 @@ yearInput.addEventListener('change', function() {
                value="${savedValue}" placeholder="0.00" step="0.01" min="0" 
                onchange="updatePensionableEarnings()">
     </td>
-    <td>${dtk.toFixed(2)}</td>  <!-- ΑΛΛΑΓΗ ΕΔΩ: toFixed(2) -->
-    <td id="adjusted-${year}">${(savedValue * dtk).toFixed(2) || '0.00'}</td>
+    <td>${dtk.toFixed(5)}</td>
+    <td id="adjusted-${year}">${(savedValue * getDtkProduct(year)).toFixed(2) || '0.00'}</td>
     <td>
         <input type="number" id="dm-${year}" class="dm-input" 
                value="${savedDMValue}" placeholder="0.0" step="0.1" min="0" 
@@ -5341,7 +5390,16 @@ yearInput.addEventListener('change', function() {
             
             // Προεπιλογή του τελευταίου έτους
             yearSelect.value = 2035;
-            
+
+            // Όταν αλλάζει το "Έτος εξόδου" (χρησιμοποιείται μόνο αν δεν έχει
+            // συμπληρωθεί η Ημερομηνία Εξόδου στην καρτέλα 2000/07/08), ξαναϋπολογίζουμε.
+            if (!yearSelect.dataset.dtkListenerAttached) {
+                yearSelect.addEventListener('change', function() {
+                    if (typeof updatePensionableEarnings === 'function') updatePensionableEarnings();
+                });
+                yearSelect.dataset.dtkListenerAttached = '1';
+            }
+
             updatePensionableEarnings();
             updateDMValues();
         }
@@ -5354,12 +5412,12 @@ yearInput.addEventListener('change', function() {
            for (let year = 2002; year <= 2035; year++) {
                 const earningsInput = document.getElementById(`earnings-${year}`);
                 const adjustedCell = document.getElementById(`adjusted-${year}`);
-                const dtk = dtkData[year] || 1.00000000;
+                const dtkProduct = getDtkProduct(year);
                 
                 if (!earningsInput || !adjustedCell) continue;
                 
                 const earnings = parseFloat(earningsInput.value) || 0;
-                const adjusted = earnings * dtk;
+                const adjusted = earnings * dtkProduct;
                 
                 adjustedCell.textContent = adjusted.toFixed(2);
                 
@@ -5463,7 +5521,7 @@ function calculatePensionableSalary() {
         if (!earningsInput) continue;
 
         const yearlyAmountFromTable = parseFloat(earningsInput.value) || 0;
-        const dtk = dtkData[year] || 1.00000000;
+        const dtk = getDtkProduct(year);
 
         if (yearlyAmountFromTable > 0) {
             totalAdjustedMain += (yearlyAmountFromTable * dtk);
@@ -5949,7 +6007,7 @@ function autoFillContributionsFromPensionTable() {
                 }
                 
                 // Υπολογισμός αναπροσαρμοσμένης αξίας
-                const dtk = dtkData[year] || 1.00;
+                const dtk = getDtkProduct(year);
                 const adjustedValue = yearlyEarnings * dtk;
                 
                 totalContributions += adjustedValue * 0.06;
@@ -9816,7 +9874,7 @@ function calculateAverageForSupplementary(targetYear) {
     
     // 3. Υπολόγισε την επίδραση της εξαγοράς
     const realMonthly = calculateRealMonthlySalaryForYear(purchaseYear20);
-    const dtk = dtkData[purchaseYear20] || 1.0;
+    const dtk = getDtkProduct(purchaseYear20);
     
     // 🔴 ΠΡΟΣΟΧΗ: Ο πίνακας έχει ήδη τις εξαγορές, οπότε πρέπει να δούμε μόνο τη διαφορά
     // Υποθέτουμε ότι η εξαγορά ΠΡΟΣΤΕΘΗΚΕ στον πίνακα, οπότε πρέπει να ΑΦΑΙΡΕΘΕΙ
