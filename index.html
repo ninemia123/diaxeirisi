@@ -5888,15 +5888,22 @@ function autoFillSupplementaryFromPensionTable() {
         let yearsWithData = 0;
         
         // Υπολογισμός αθροίσματος αναπροσαρμοσμένων αποδοχών 2002-2014
+        // ΣΗΜΑΝΤΙΚΟ: Το κελί adjusted-${year} υπολογίζεται στην καρτέλα ΥΠΟΛ ΣΥΝΤΑΞΗΣ
+        // με γινόμενο ΔΤΚ έως (έτος εξόδου - 1), κάτι σωστό ΜΟΝΟ για την Κύρια Σύνταξη.
+        // Για το Α΄ τμήμα Επικουρικής (μέχρι 2014) η αναπροσαρμογή πρέπει να σταματάει
+        // πάντα στο 2013, ανεξάρτητα από την πραγματική ημερομηνία εξόδου. Γι' αυτό
+        // υπολογίζουμε εδώ δικό μας γινόμενο ΔΤΚ (fromYear -> 2013) αντί να διαβάζουμε
+        // απευθείας το κελί adjusted-${year}.
         for (let year = 2002; year <= 2014; year++) {
-            const adjustedCell = document.getElementById(`adjusted-${year}`);
-            if (adjustedCell) {
-                const value = parseFloat(adjustedCell.textContent) || 0;
+            const earningsInput = document.getElementById(`earnings-${year}`);
+            if (earningsInput) {
+                const earnings = parseFloat(earningsInput.value) || 0;
+                const dtkProductUpTo2013 = getDtkProduct(year, 2013);
+                const value = earnings * dtkProductUpTo2013;
                 totalAdjusted += value;
                 
                 // Έλεγχος αν το έτος έχει δεδομένα
-                const earningsInput = document.getElementById(`earnings-${year}`);
-                if (earningsInput && parseFloat(earningsInput.value) > 0) {
+                if (earnings > 0) {
                     monthsCount += 12;
                     yearsWithData++;
                 }
