@@ -9664,24 +9664,11 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Επίσης, όταν εμφανίζεται η φόρμα ΚΡΑΤΗΣΕΙΣ
-const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-        if (mutation.type === 'childList') {
-            const deductionsForm = document.getElementById('deductions-calc');
-            if (deductionsForm && deductionsForm.classList.contains('active')) {
-                console.log('👀 Εμφανίστηκε η φόρμα ΚΡΑΤΗΣΕΙΣ');
-                setTimeout(setupDeductionListeners, 200);
-            }
-        }
-    });
-});
-
-// Παρακολούθηση αλλαγών στο DOM
-observer.observe(document.body, {
-    childList: true,
-    subtree: true
-});
+// (Αφαιρέθηκε το MutationObserver που παρακολουθούσε ΟΛΟ το document.body:
+// έκανε re-clone/replace των πεδίων σε κάθε αλλαγή του DOM -- ακόμα και σε
+// κάθε πληκτρολόγηση, αφού το calculateDeductions() ενημερώνει τον πίνακα
+// παραδείγματος -- με αποτέλεσμα να χάνεται το focus και να κλείνει αμέσως
+// το πληκτρολόγιο στο κινητό.)
 
 // =============================================
 // ΑΠΛΗ ΚΑΙ ΔΟΥΛΕΥΟΥΣΑ ΕΚΔΟΣΗ
@@ -9735,8 +9722,7 @@ if (document.readyState === 'loading') {
 // 3. ΕΚΤΕΛΕΣΗ όταν πατάς στην καρτέλα ΚΡΑΤΗΣΕΙΣ
 document.addEventListener('click', function(event) {
     // Αν πατήθηκε κουμπί ή στοιχείο που ανήκει στην καρτέλα ΚΡΑΤΗΣΕΙΣ
-    if (event.target.closest('[data-calc="deductions"]') || 
-        event.target.closest('#deductions-calc')) {
+    if (event.target.closest('[data-calc="deductions"]')) {
         setTimeout(function() {
             attachDeductionListeners();
             calculateDeductions();
