@@ -5503,6 +5503,34 @@ function calculatePensionableSalary() {
         // Χρησιμοποιούμε ΜΟΝΟ τον μήνα (όχι εξάμηνο)
         const selectedMonth = parseInt(document.getElementById('selected-month').value) || 12;
         actualMonths = ((selectedYear - 2002) * 12) + selectedMonth;
+
+        // === ΕΛΕΓΧΟΣ ΣΥΜΦΩΝΙΑΣ ΜΕ "Ημερομηνία Εξόδου" (service-end-date) ===
+        // Το πεδίο "exit-date-input" δεν υπάρχει στη σελίδα, οπότε ο υπολογισμός εδώ
+        // στηρίζεται πάντα στα dropdown "Έτος/Μήνας εξόδου". Αν ο χρήστης έχει
+        // συμπληρώσει και την "Ημερομηνία Εξόδου" στην καρτέλα 2000/07/08 με
+        // διαφορετικό έτος, ενημερώνουμε — χωρίς να αλλάζουμε καμία τιμή.
+        try {
+            const serviceEndEl = document.getElementById('service-end-date');
+            if (serviceEndEl && serviceEndEl.value) {
+                const serviceEndDate = parseDateInput(serviceEndEl.value);
+                if (serviceEndDate && serviceEndDate.getFullYear() !== selectedYear) {
+                    console.warn(`⚠️ Ασυμφωνία ετών εξόδου: "Ημερομηνία Εξόδου" = ${serviceEndDate.getFullYear()}, ενώ το dropdown "Έτος εξόδου" = ${selectedYear}. Ο υπολογισμός ΥΠΟΛ ΣΥΝΤΑΞΗΣ χρησιμοποιεί το dropdown.`);
+                    let warnBox = document.getElementById('exit-year-mismatch-warning');
+                    if (!warnBox) {
+                        warnBox = document.createElement('div');
+                        warnBox.id = 'exit-year-mismatch-warning';
+                        warnBox.style.cssText = 'background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:0.75rem;border-radius:5px;margin-bottom:1rem;font-weight:bold;';
+                        selectedYearEl.parentNode.insertBefore(warnBox, selectedYearEl.parentNode.firstChild);
+                    }
+                    warnBox.textContent = `⚠️ Προσοχή: η "Ημερομηνία Εξόδου" (${serviceEndEl.value}) δείχνει έτος ${serviceEndDate.getFullYear()}, ενώ έχεις επιλέξει "Έτος εξόδου" ${selectedYear} στη λίστα. Ο υπολογισμός συντάξιμων αποδοχών χρησιμοποιεί το επιλεγμένο έτος (${selectedYear}). Έλεγξε ότι είναι το σωστό.`;
+                } else {
+                    const existingWarn = document.getElementById('exit-year-mismatch-warning');
+                    if (existingWarn) existingWarn.remove();
+                }
+            }
+        } catch (e) {
+            console.error('Σφάλμα ελέγχου συμφωνίας ετών εξόδου:', e);
+        }
     }
 
     // === ΥΠΟΛΟΙΠΟΙ ΥΠΟΛΟΓΙΣΜΟΙ (από την αρχική σου συνάρτηση) ===
@@ -5694,44 +5722,12 @@ function calculateMonthlySalaryForYear(year) {
             document.getElementById('result-health-deduction').textContent = healthDeduction.toFixed(2) + '€';
             document.getElementById('result-final-pension').textContent = finalPension.toFixed(2) + '€';
         }
-// ΣΥΝΑΡΤΗΣΗ: Αυτόματη συμπλήρωση Επικουρικής από ΥΠΟΛ ΣΥΝΤΑΞΗΣ
-function autoFillSupplementaryFromPension() {
-    try {
-        // Παίρνει το τρέχον έτος από την ΥΠΟΛ ΣΥΝΤΑΞΗΣ
-        const selectedYear = parseInt(document.getElementById('selected-year').value) || new Date().getFullYear();
-        
-        // Υπολογισμός ΜΗΝΙΑΙΟΥ ΧΩΡΙΣ 20% (ίδια λογική)
-        const monthlySalary = calculateMonthlySalaryWithout20Percent(selectedYear);
-        
-        if (monthlySalary > 0) {
-            // Ετήσιες αποδοχές για Επικουρική
-            const annualEarnings = monthlySalary * 12;
-            
-            // Συμπλήρωση στην Επικουρική
-            document.getElementById('supplementaryEarnings').value = annualEarnings.toFixed(2);
-            
-            // Προαιρετικά: συμπλήρωση ετών
-            if (!document.getElementById('supplementaryYears').value) {
-                document.getElementById('supplementaryYears').value = '35';
-            }
-            
-            console.log(`✅ Αυτόματη συμπλήρωση Επικουρική από έτος ${selectedYear}:`);
-            console.log(`   Μηνιαίος: ${monthlySalary.toFixed(2)}€`);
-            console.log(`   Ετήσιος: ${annualEarnings.toFixed(2)}€`);
-            
-            // Επανυπολογισμός Επικουρικής
-            if (typeof calculateSupplementary2014 === 'function') {
-                setTimeout(calculateSupplementary2014, 100);
-            }
-            
-            alert(`✅ Αυτόματη συμπλήρωση Επικουρικής:\nΜηνιαίος: ${monthlySalary.toFixed(2)}€\nΕτήσιος: ${annualEarnings.toFixed(2)}€`);
-        }
-        
-    } catch (error) {
-        console.error('Σφάλμα αυτόματης συμπλήρωσης:', error);
-        alert('❌ Σφάλμα συμπλήρωσης');
-    }
-}
+// [ΑΦΑΙΡΕΘΗΚΕ] autoFillSupplementaryFromPension(): νεκρή συνάρτηση, δεν καλούνταν από
+// πουθενά στο UI. Γέμιζε το πεδίο supplementaryEarnings με ΕΤΗΣΙΟ ποσό, ενώ η
+// calculateSupplementary2014() το διαβάζει ως ΜΗΝΙΑΙΟ (τύπος: αποδοχές × έτη × 0,45%).
+// Αν ενεργοποιούνταν ποτέ, θα έβγαζε επικουρική σύνταξη 12 φορές μεγαλύτερη.
+// Η ενεργή, σωστή συνάρτηση είναι η autoFillSupplementaryFromPensionTable() παρακάτω,
+// που γεμίζει ήδη σωστά με ΜΗΝΙΑΙΟ ποσό.
 
 // =============================================
 // ΒΟΗΘΗΤΙΚΗ ΣΥΝΑΡΤΗΣΗ: Έλεγχος τιμών (2035)
@@ -6485,53 +6481,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // ΜΙΣΘΟΛΟΓΙΟ - ΣΥΝΑΡΤΗΣΕΙΣ
         // =============================================
 
-        function saveUserValues() {
-            const userValues = {
-                eparth: document.getElementById('epanthValue').value,
-                idsyn: document.getElementById('idsynValue').value,
-                tekn1: document.getElementById('tekn1Value').value,
-                tekn2: document.getElementById('tekn2Value').value,
-                tekn3: document.getElementById('tekn3Value').value,
-                tekn4: document.getElementById('tekn4Value').value,
-                tekn5: document.getElementById('tekn5Value').value,
-                baseSalary: document.getElementById('baseSalary').value
-            };
-            localStorage.setItem('userSalaryValues', JSON.stringify(userValues));
-            updateCurrentValuesDisplay();
-        }
-
-        function loadUserValues() {
-            const savedValues = localStorage.getItem('userSalaryValues');
-            if (savedValues) {
-                const userValues = JSON.parse(savedValues);
-                
-                if (userValues.eparth) document.getElementById('epanthValue').value = userValues.eparth;
-                if (userValues.idsyn) document.getElementById('idsynValue').value = userValues.idsyn;
-                if (userValues.tekn1) document.getElementById('tekn1Value').value = userValues.tekn1;
-                if (userValues.tekn2) document.getElementById('tekn2Value').value = userValues.tekn2;
-                if (userValues.tekn3) document.getElementById('tekn3Value').value = userValues.tekn3;
-                if (userValues.tekn4) document.getElementById('tekn4Value').value = userValues.tekn4;
-                if (userValues.tekn5) document.getElementById('tekn5Value').value = userValues.tekn5;
-                if (userValues.baseSalary) document.getElementById('baseSalary').value = userValues.baseSalary;
-                
-                updateCurrentValuesDisplay();
-            }
-        }
-         function saveUserValues() {
-    const userValues = {
-        eparth: document.getElementById('epanthValue').value,
-        idsyn: document.getElementById('idsynValue').value,
-        tekn1: document.getElementById('tekn1Value').value,
-        tekn2: document.getElementById('tekn2Value').value,
-        tekn3: document.getElementById('tekn3Value').value,
-        tekn4: document.getElementById('tekn4Value').value,
-        tekn5: document.getElementById('tekn5Value').value,
-        parathrio: document.getElementById('parathrioValue').value, // 👈 ΠΡΟΣΘΗΚΗ ΑΥΤΗΣ ΤΗΣ ΓΡΑΜΜΗΣ
-        baseSalary: document.getElementById('baseSalary').value
-    };
-    localStorage.setItem('userSalaryValues', JSON.stringify(userValues));
-    updateCurrentValuesDisplay();
-}
+        // [ΑΦΑΙΡΕΘΗΚΑΝ] Εδώ υπήρχαν παλιότερες, ημιτελείς εκδοχές των saveUserValues()
+        // και loadUserValues() (χωρίς το πεδίο "παραμεθόριο"). Ποτέ δεν εκτελούνταν
+        // στην πράξη, αφού υπάρχουν νεότερες δηλώσεις των ίδιων συναρτήσεων παρακάτω
+        // στο αρχείο. Αφαιρέθηκαν για καθαρότητα· καμία λειτουργία δεν άλλαξε.
+      // [ΑΦΑΙΡΕΘΗΚΕ] Άλλη μια ενδιάμεση εκδοχή της saveUserValues() — και αυτή νεκρή,
+      // αφού η τελική δήλωση της συνάρτησης βρίσκεται πιο κάτω στο αρχείο (με τα
+      // προεπιλεγμένα ποσά ?.value || '...'). Καμία λειτουργία δεν άλλαξε.
       function loadUserValues() {
     const savedValues = localStorage.getItem('userSalaryValues');
     if (savedValues) {
@@ -6550,15 +6506,8 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCurrentValuesDisplay();
     }
 } 
-     function updateCurrentValuesDisplay() {
-            document.getElementById('currentEpanth').textContent = document.getElementById('epanthValue').value + '€';
-            document.getElementById('currentIdsyn').textContent = document.getElementById('idsynValue').value + '€';
-            document.getElementById('currentTekn1').textContent = document.getElementById('tekn1Value').value + '€';
-            document.getElementById('currentTekn2').textContent = document.getElementById('tekn2Value').value + '€';
-            document.getElementById('currentTekn3').textContent = document.getElementById('tekn3Value').value + '€';
-            document.getElementById('currentTekn4').textContent = document.getElementById('tekn4Value').value + '€';
-            document.getElementById('currentTekn5').textContent = document.getElementById('tekn5Value').value + '€';
-        }
+     // [ΑΦΑΙΡΕΘΗΚΕ] Παλιότερη εκδοχή της updateCurrentValuesDisplay() χωρίς το πεδίο
+     // "παραμεθόριο" — νεκρός κώδικας, επικρατεί πάντα η τελευταία δήλωση παρακάτω.
 function updateCurrentValuesDisplay() {
     document.getElementById('currentEpanth').textContent = document.getElementById('epanthValue').value + '€';
     document.getElementById('currentIdsyn').textContent = document.getElementById('idsynValue').value + '€';
@@ -7029,57 +6978,11 @@ function transferToPensionTable(salaryData) {
     // Ενημέρωση υπολογισμών
     updatePensionableEarnings();
 }
- function getBasicSalary(year, scale) {
-    // ΠΛΗΡΗΣ ΠΙΝΑΚΑΣ ΜΙΣΘΩΝ 2002-2026
-    const salaries = {
-        "2002": [490, 520, 550, 580, 610, 640, 670, 700, 730, 760, 790, 820, 850, 880, 910, 940, 970, 1000],
-        "2003": [499, 529, 559, 589, 619, 649, 679, 709, 739, 769, 799, 829, 859, 889, 919, 949, 979, 1009],
-        "2004": [690, 720, 749, 778, 807, 837, 866, 895, 924, 954, 983, 1012, 1041, 1071, 1100, 1129, 1158, 1188],
-        "2005": [715, 745, 776, 806, 837, 867, 897, 928, 958, 989, 1019, 1049, 1080, 1110, 1141, 1171, 1202, 1232],         
-        "2004": [690, 720, 749, 778, 807, 837, 866, 895, 924, 954, 983, 1012, 1041, 1071, 1100, 1129, 1158, 1188],
-        "2005": [715, 745, 776, 806, 837, 867, 897, 928, 958, 989, 1019, 1049, 1080, 1110, 1141, 1171, 1202, 1232],
-        "2006": [736, 768, 799, 831, 862, 894, 925, 957, 989, 1020, 1052, 1083, 1115, 1147, 1178, 1210, 1241, 1273],
-        "2007": [762, 794, 827, 860, 893, 925, 958, 991, 1024, 1057, 1089, 1122, 1155, 1188, 1220, 1253, 1286, 1319],
-        "2008": [814, 847, 880, 914, 948, 981, 1015, 1049, 1082, 1116, 1149, 1183, 1217, 1251, 1283, 1317, 1351, 1385],
-        "2009": [830, 864, 897, 932, 967, 1000, 1035, 1069, 1103, 1138, 1171, 1206, 1241, 1275, 1308, 1343, 1377, 1412],
-        "2010": [830, 864, 897, 932, 967, 1000, 1035, 1069, 1103, 1138, 1171, 1206, 1241, 1275, 1308, 1343, 1377, 1412],
-        "2011": [830, 864, 897, 932, 967, 1000, 1035, 1069, 1103, 1138, 1171, 1206, 1241, 1275, 1308, 1343, 1377, 1412],
-        "2012": [858, 944, 963, 982, 1002, 1086, 1108, 1130, 1153, 1176, 1249, 1274, 1299, 1325, 1352, 1379, 1499, 1529],
-        "2013": [858, 944, 963, 982, 1002, 1086, 1108, 1130, 1153, 1176, 1249, 1274, 1299, 1325, 1352, 1379, 1499, 1529],
-        "2014": [858, 944, 963, 982, 1002, 1086, 1108, 1130, 1153, 1176, 1249, 1274, 1299, 1325, 1352, 1379, 1499, 1529],
-        "2015": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
-        "2016": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
-        "2017": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
-        "2018": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
-        "2019": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
-        "2020": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
-        "2021": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
-        "2022": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
-        "2023": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
-         "2024": [928, 988, 1048, 1108, 1168, 1228, 1288, 1348, 1408, 1468, 1528, 1588, 1648],
-        "2025": [958, 1018, 1078, 1138, 1198, 1258, 1318, 1378, 1438, 1498, 1558, 1618, 1678],
-        "2026": [998, 1058, 1118, 1178, 1238, 1298, 1358, 1418, 1478, 1538, 1598, 1658, 1718],
-        "2027": [1028, 1088, 1148, 1208, 1268, 1328, 1388, 1448, 1508, 1568, 1628, 1688, 1748],
-        "2028": [1028, 1088, 1148, 1208, 1268, 1328, 1388, 1448, 1508, 1568, 1628, 1688, 1748],
-        "2029": [1028, 1088, 1148, 1208, 1268, 1328, 1388, 1448, 1508, 1568, 1628, 1688, 1748],
-        "2030": [1028, 1088, 1148, 1208, 1268, 1328, 1388, 1448, 1508, 1568, 1628, 1688, 1748],
-        "2031": [1058, 1118, 1178, 1238, 1298, 1358, 1418, 1478, 1538, 1598, 1658, 1718, 1778],
-        "2032": [1058, 1118, 1178, 1238, 1298, 1358, 1418, 1478, 1538, 1598, 1658, 1718, 1778],
-        "2033": [1058, 1118, 1178, 1238, 1298, 1358, 1418, 1478, 1538, 1598, 1658, 1718, 1778]
-    
-};
-    
-    // Επιστροφή μισθού για το συγκεκριμένο έτος και κλιμάκιο
-    const yearSalaries = salaries[year.toString()];
-    if (!yearSalaries) return 0;
-    
-    // Αν το scale είναι μεγαλύτερο από τα διαθέσιμα κλιμάκια, επέστρεψε το τελευταίο
-    const scaleIndex = Math.min(scale - 1, yearSalaries.length - 1);
-    return yearSalaries[scaleIndex] || yearSalaries[0] || 0;
-}
-     
 
-    
+// [ΑΦΑΙΡΕΘΗΚΕ] Εδώ υπήρχε ένα παλιότερο, ελαφρώς ελλιπές αντίγραφο της getBasicSalary()
+// (έλειπαν τα έτη 2027, 2034, 2035). Ήταν νεκρό — υπερίσχυε πάντα η τελική δήλωση
+// παρακάτω στο αρχείο. Αφαιρέθηκε· η ενεργή συνάρτηση παραμένει ανέπαφη.
+
    function calculateAutoPension() {
     try {
         // 1. ΚΑΘΑΡΙΣΜΟΣ προηγούμενων δεδομένων
@@ -7165,19 +7068,11 @@ function calculateAllowancesForYear(year, entryDate, exitDate) {
     
     return totalAllowances;
 }
-function getBasicSalary(year, scale) {
-    const salaries = {
-        "2002": [490, 520, 550, 580, 610, 640, 670, 700, 730, 760, 790, 820, 850, 880, 910, 940, 970, 1000],
-        "2003": [498.8, 528.8, 558.8, 588.8, 618.8, 648.8, 678.8, 709, 739, 769, 799, 829, 859, 889, 919, 949, 979, 1009],
-        // ... όλοι οι μισθοί όπως τους έχεις
-    };
-    
-    const yearSalaries = salaries[year.toString()];
-    if (!yearSalaries) return 0;
-    
-    const scaleIndex = Math.min(scale - 1, yearSalaries.length - 1);
-    return yearSalaries[scaleIndex] || yearSalaries[0] || 0;
-}
+// [ΑΦΑΙΡΕΘΗΚΕ] Εδώ υπήρχε μια ημιτελής (stub) εκδοχή της getBasicSalary() με μισθούς
+// μόνο για το 2002-2003. Ποτέ δεν εκτελούνταν στην πράξη, γιατί παρακάτω στο αρχείο
+// υπάρχει ολοκληρωμένη δεύτερη δήλωση της ίδιας συνάρτησης (με όλα τα έτη 2002-2035),
+// και σε JavaScript ισχύει πάντα η τελευταία δήλωση μιας συνάρτησης. Αφαιρέθηκε για
+// να μην μπερδεύει σε μελλοντικές διορθώσεις — η πλήρης εκδοχή παραμένει ενεργή.
 function calculateAllowancesForYear(year, entryDate, exitDate) {
     let monthlyAllowances = 0;
     
