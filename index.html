@@ -5537,8 +5537,9 @@ function calculatePensionableSalary() {
     const dmPercentage = parseFloat(document.getElementById('dm-percentage').value) || 0;
     const purchaseMonths20 = parseInt(document.getElementById('purchase-months-20').value) || 0;
     const purchaseYear20 = parseInt(document.getElementById('purchase-year-20').value) || 0;
+    const purchaseMonths667 = parseInt(document.getElementById('purchase-months-667').value) || 0;
 
-    const divisorMain = actualMonths + purchaseMonths20;
+    const divisorMain = actualMonths + purchaseMonths20 + purchaseMonths667;
     const divisorSuppl = actualMonths;
 
     let totalAdjustedMain = 0;
@@ -6392,21 +6393,13 @@ function calculateGlobalSummary() {
 function calculateEfapax() {
     console.log("Υπολογισμός ΕΦΑПAΞ ξεκίνησε...");
     
-    // Λήψη των αποδοχών από την καρτέλα ΥΠΟΛ ΣΥΝΤΑΞΗΣ για 2009 και 2010
-    const earningsFromPension2009 = parseFloat(document.getElementById('earnings-2009').value) || 0;
-    const earningsFromPension2010 = parseFloat(document.getElementById('earnings-2010').value) || 0;
-    
-    console.log("Αποδοχές από καρτέλα Σύνταξης 2009:", earningsFromPension2009);
-    console.log("Αποδοχές από καρτέλα Σύνταξης 2010:", earningsFromPension2010);
-    
-    // Υπολογισμός με τον νέο τρόπο ΜΟΝΟ για 2009 και 2010
-    const earnings2009 = (earningsFromPension2009 / 14) * 12;
-    const earnings2010 = (earningsFromPension2010 / 14) * 12;
-    
-    console.log("Μετατροπή 2009 (από 14 σε 12):", earnings2009);
-    console.log("Μετατροπή 2010 (από 14 σε 12):", earnings2010);
-    
-    // Τα υπόλοιπα έτη παραμένουν ως έχουν
+    // Διαβάζουμε ΟΛΑ τα έτη απευθείας από τα ορατά κουτάκια της καρτέλας ΕΦΑΠΑΞ.
+    // Η αφαίρεση δώρων (14→12 για το 2009, -1000€ για 2010-2011) γίνεται ΠΡΙΝ,
+    // όταν γεμίζουν αυτά τα κουτάκια (είτε αυτόματα από το κουμπί μεταφοράς, είτε
+    // χειροκίνητα από τον χρήστη) — ώστε το κουτάκι να δείχνει πάντα το ίδιο ποσό
+    // που χρησιμοποιείται στον υπολογισμό, χωρίς κρυφές αφαιρέσεις.
+    const earnings2009 = parseFloat(document.getElementById('earnings2009').value) || 0;
+    const earnings2010 = parseFloat(document.getElementById('earnings2010').value) || 0;
     const earnings2011 = parseFloat(document.getElementById('earnings2011').value) || 0;
     const earnings2012 = parseFloat(document.getElementById('earnings2012').value) || 0;
     const earnings2013 = parseFloat(document.getElementById('earnings2013').value) || 0;
@@ -7326,17 +7319,15 @@ function getBasicSalary(year, scale) {
         "2003": [499, 529, 559, 589, 619, 649, 679, 709, 739, 769, 799, 829, 859, 889, 919, 949, 979, 1009],
         "2004": [690, 720, 749, 778, 807, 837, 866, 895, 924, 954, 983, 1012, 1041, 1071, 1100, 1129, 1158, 1188],
         "2005": [715, 745, 776, 806, 837, 867, 897, 928, 958, 989, 1019, 1049, 1080, 1110, 1141, 1171, 1202, 1232],         
-        "2004": [690, 720, 749, 778, 807, 837, 866, 895, 924, 954, 983, 1012, 1041, 1071, 1100, 1129, 1158, 1188],
-        "2005": [715, 745, 776, 806, 837, 867, 897, 928, 958, 989, 1019, 1049, 1080, 1110, 1141, 1171, 1202, 1232],
         "2006": [736, 768, 799, 831, 862, 894, 925, 957, 989, 1020, 1052, 1083, 1115, 1147, 1178, 1210, 1241, 1273],
-        "2007": [762, 794, 827, 860, 893, 925, 958, 991, 1024, 1057, 1089, 1122, 1155, 1188, 1220, 1253, 1286, 1319],
+        "2007": [736, 768, 799, 831, 862, 894, 925, 957, 989, 1020, 1052, 1083, 1115, 1147, 1178, 1210, 1241, 1273],
         "2008": [814, 847, 880, 914, 948, 981, 1015, 1049, 1082, 1116, 1149, 1183, 1217, 1251, 1283, 1317, 1351, 1385],
         "2009": [830, 864, 897, 932, 967, 1000, 1035, 1069, 1103, 1138, 1171, 1206, 1241, 1275, 1308, 1343, 1377, 1412],
         "2010": [830, 864, 897, 932, 967, 1000, 1035, 1069, 1103, 1138, 1171, 1206, 1241, 1275, 1308, 1343, 1377, 1412],
         "2011": [830, 864, 897, 932, 967, 1000, 1035, 1069, 1103, 1138, 1171, 1206, 1241, 1275, 1308, 1343, 1377, 1412],
-        "2012": [858, 944, 963, 982, 1002, 1086, 1108, 1130, 1153, 1176, 1249, 1274, 1299, 1325, 1352, 1379, 1499, 1529],
-        "2013": [858, 944, 963, 982, 1002, 1086, 1108, 1130, 1153, 1176, 1249, 1274, 1299, 1325, 1352, 1379, 1499, 1529],
-        "2014": [858, 944, 963, 982, 1002, 1086, 1108, 1130, 1153, 1176, 1249, 1274, 1299, 1325, 1352, 1379, 1499, 1529],
+        "2012": [858, 944, 963, 982, 1002, 1086, 1108, 1130, 1153, 1176, 1249, 1274, 1299, 1325, 1352, 1379, 1499, 1529, 1560, 1591, 1623, 1655, 1688],
+        "2013": [858, 944, 963, 982, 1002, 1086, 1108, 1130, 1153, 1176, 1249, 1274, 1299, 1325, 1352, 1379, 1499, 1529, 1560, 1591, 1623, 1655, 1688],
+        "2014": [858, 944, 963, 982, 1002, 1086, 1108, 1130, 1153, 1176, 1249, 1274, 1299, 1325, 1352, 1379, 1499, 1529, 1560, 1591, 1623, 1655, 1688],
         "2015": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
         "2016": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
         "2017": [858, 918, 978, 1038, 1098, 1158, 1218, 1278, 1338, 1398, 1458, 1518, 1578],
@@ -8716,7 +8707,10 @@ function safeGFactorProduct(fromYear, toYear) {
 // Συνάρτηση μεταφοράς δεδομένων από ΥΠΟΛ ΣΥΝΤΑΞΗΣ σε ΕΦΑΠΑΞ
 function transferPensionToEfapaxData() {
     try {
-        // Μεταφορά ποσών για 2009-2013 με τον νέο κανόνα για 2009-2010
+        // Μεταφορά ποσών για 2009-2013, με σωστή αφαίρεση δώρων:
+        // 2009: αναλογικά δώρα (14 "μισθοί"/έτος) -> ×12/14
+        // 2010, 2011: σταθερά δώρα 1.000€ (500+250+250) -> αφαίρεση 1.000€
+        // 2012, 2013: δεν υπήρχαν πλέον δώρα -> καμία αλλαγή
         const years = [2009, 2010, 2011, 2012, 2013];
         
         years.forEach(year => {
@@ -8726,9 +8720,10 @@ function transferPensionToEfapaxData() {
             if (pensionInput && efapaxInput && pensionInput.value) {
                 let value = parseFloat(pensionInput.value);
                 
-                // Εφαρμογή νέου κανόνα ΜΟΝΟ για 2009 και 2010
-                if (year === 2009 || year === 2010) {
+                if (year === 2009) {
                     value = (value / 14) * 12;
+                } else if (year === 2010 || year === 2011) {
+                    value = Math.max(0, value - 1000);
                 }
                 
                 efapaxInput.value = value.toFixed(2);
@@ -9076,8 +9071,11 @@ function calculateCompleteSalaryHistory() {
             monthlyAllowances = getAllowancesFrom20000708Fields(year);
         }
         
-        // Υπολογισμός μηνών (Δώρα για προ 2010)
-        let monthsWorked = (year <= 2010) ? 14 : 12;
+        // Υπολογισμός μηνών:
+        // - Μέχρι 2009: αναλογικά δώρα (14 "μισθοί"/έτος)
+        // - 2010-2011: δώρα έγιναν ΣΤΑΘΕΡΑ (500€ Χριστούγεννα + 250€ Πάσχα + 250€ άδεια = 1.000€/έτος)
+        // - Από 2012: καταργήθηκαν τα δώρα (12 μισθοί, χωρίς προσθήκη)
+        let monthsWorked = (year <= 2009) ? 14 : 12;
         
         // Προσαρμογή για πρώτο έτος
         if (year === entryDate.getFullYear()) {
@@ -9101,11 +9099,18 @@ function calculateCompleteSalaryHistory() {
         }
         
         // Επιβολή ορίων
-        const maxMonths = (year <= 2010) ? 14 : 12;
+        const maxMonths = (year <= 2009) ? 14 : 12;
         monthsWorked = Math.max(0, Math.min(maxMonths, monthsWorked));
         
+        // Σταθερό δώρο 1.000€ για 2010-2011 (500+250+250), αναλογικά αν είναι έτος εισόδου/εξόδου
+        // (δηλαδή δεν εργάστηκε ολόκληρη τη χρονιά μέσα στο 2010 ή 2011)
+        let flatBonus2010_2011 = 0;
+        if (year === 2010 || year === 2011) {
+            flatBonus2010_2011 = 1000 * (monthsWorked / 12);
+        }
+        
         // ΤΕΛΙΚΟ ΠΟΣΟ: Αν είναι Προ-93, εδώ θα πολλαπλασιαστεί ΜΟΝΟ ο basicSalary
-        const pensionableEarnings = (basicSalary + monthlyAllowances) * monthsWorked;
+        const pensionableEarnings = (basicSalary + monthlyAllowances) * monthsWorked + flatBonus2010_2011;
         
         salaryHistory[year] = {
             serviceYears: serviceYears,
@@ -9689,9 +9694,11 @@ function transferPensionToEfapaxDataWithDeduction() {
                     value = Math.max(0, value - purchaseAmount20);
                 }
                 
-                // ΚΑΝΟΝΑΣ 2009-2010
-                if (year === 2009 || year === 2010) {
+                // ΚΑΝΟΝΑΣ ΔΩΡΩΝ: 2009 αναλογικά (14->12), 2010-2011 σταθερά -1.000€, 2012-2013 καμία αλλαγή
+                if (year === 2009) {
                     value = (value / 14) * 12;
+                } else if (year === 2010 || year === 2011) {
+                    value = Math.max(0, value - 1000);
                 }
                 
                 efapaxInput.value = value.toFixed(2);
@@ -9811,15 +9818,10 @@ function triggerMTPYCalculation() {
 }
 
 // Και τροποποίησε την autoFillMTPYFromPension:
-function autoFillMTPYFromPension() {
-    const text = document.getElementById('result-monthly-salary-supplementary').textContent;
-    const number = parseFloat(text.replace('€', '').trim());
-    
-    if (number && !isNaN(number)) {
-        document.getElementById('mtpyEarnings').value = number.toFixed(2);
-        triggerMTPYCalculation(); // 🔴 ΑΥΤΗ Η ΓΡΑΜΜΗ
-    }
-}
+// [ΑΦΑΙΡΕΘΗΚΕ] Παλιότερη εκδοχή της autoFillMTPYFromPension() που τραβούσε από το
+// πεδίο "Μέσος Μηνιαίος Μισθός" (πριν την αναπροσαρμογή ΔΤΚ/ΔΜ). Νεκρός κώδικας —
+// υπερίσχυε πάντα η τελική δήλωση παρακάτω στο αρχείο, που τραβάει σωστά από το
+// "Συνταξιμος Μισθός μετά ΔΜ" (ίδια βάση με την Επικουρική).
 
 // =============================================
 // ΑΥΤΟΜΑΤΟΣ ΥΠΟΛΟΓΙΣΜΟΣ ΟΤΑΝ ΑΛΛΑΖΕΙ ΜΗΝΑΣ (ΜΟΝΟ ΓΙΑ ΗΜΕΡΟΛΟΓΙΟ)
