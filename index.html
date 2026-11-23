@@ -2453,7 +2453,8 @@ input[placeholder="ΗΗ/ΜΜ/ΕΕΕΕ"] {
 
             <div class="calculator-types mobile-scroll-container">
                 
-                <button class="calc-type-btn active" data-calc="instructions">📋 ΟΔΗΓΙΕΣ/LINKS</button>
+                <button class="calc-type-btn active" data-calc="wizard">🧮 ΣΥΝΤΑΞΗ (ΕΥΚΟΛΑ)</button>
+                <button class="calc-type-btn" data-calc="instructions">📋 ΟΔΗΓΙΕΣ/LINKS</button>
                 <button class="calc-type-btn" data-calc="vacations">🏖️ ΑΔΕΙΕΣ</button>
                 <button class="calc-type-btn" data-calc="pensionable-earnings">📊 ΥΠΟΛ ΣΥΝΤΑΞΗΣ</button>
                 <button class="calc-type-btn" data-calc="supplementary">🏦 ΕΠΙΚΟΥΡΙΚΗ</button>
@@ -2465,7 +2466,7 @@ input[placeholder="ΗΗ/ΜΜ/ΕΕΕΕ"] {
                 <button class="calc-type-btn" data-calc="2000-07-08">2000/07/08</button>
             </div>
 <!-- ΟΔΗΓΙΕΣ/LINKS -->
-<div id="instructions-calc" class="calculator-form active">
+<div id="instructions-calc" class="calculator-form">
     <div class="instructions-section">
         <h3>📋 Οδηγίες & Χρήσιμοι Σύνδεσμοι</h3>
         
@@ -2841,7 +2842,122 @@ https://www.opengov.gr/ypes/?p=8739<p>
     </div>
 </div>
             <!-- ΥΠΟΛΟΓΙΣΜΟΣ ΣΥΝΤΑΞΙΜΩΝ ΑΠΟΔΟΧΩΝ -->
-            <div id="pensionable-earnings-calc" class="calculator-form">
+            
+<!-- ============ ΝΕΑ ΑΠΛΗ ΟΘΟΝΗ: ΣΥΝΤΑΞΗ (ΕΥΚΟΛΑ) ============ -->
+<div id="wizard-calc" class="calculator-form active">
+  <div class="wz">
+    <h3 class="wz-title">🧮 Υπολογισμός Σύνταξης – όλα σε ένα βήμα</h3>
+    <p class="wz-hint">Συμπλήρωσε τα στοιχεία και πάτησε <strong>Υπολογισμός</strong>. Βγαίνουν μαζί κύρια σύνταξη, επικουρική, ΜΤΠΥ και εφάπαξ. Τα στοιχεία συγχρονίζονται με τις παλιές καρτέλες, που παραμένουν διαθέσιμες.</p>
+
+    <details class="wz-card" open>
+      <summary>1️⃣ Υπηρεσία</summary>
+      <div class="wz-grid">
+        <div class="form-group"><label for="w-start">Ημερομηνία ανάληψης</label><input type="text" id="w-start" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div>
+        <div class="form-group"><label for="w-end">Ημερομηνία εξόδου</label><input type="text" id="w-end" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div>
+      </div>
+      <label class="wz-check"><input type="checkbox" id="w-pre93"> Προ 1993 (μετράει μόνο ο βασικός μισθός + το νέο επίδομα)</label>
+      <div class="wz-sub">Αναγνώριση προϋπηρεσίας <small>(μετράει μόνο στο κλιμάκιο, όχι στον συντελεστή βαθμού)</small></div>
+      <div class="wz-grid3">
+        <div class="form-group"><label for="w-rec-y">Έτη</label><input type="number" id="w-rec-y" inputmode="decimal" min="0" max="50"></div><div class="form-group"><label for="w-rec-m">Μήνες</label><input type="number" id="w-rec-m" inputmode="decimal" min="0" max="11"></div><div class="form-group"><label for="w-rec-d">Ημέρες</label><input type="number" id="w-rec-d" inputmode="decimal" min="0" max="30"></div>
+      </div>
+      <details class="wz-inner"><summary>Πλασματικά / Εξαγορά / Άλλος φορέας</summary>
+        <div class="wz-grid3">
+          <div class="form-group"><label for="w-p667">Εξαγορά 6,67% (μήνες)</label><input type="number" id="w-p667" inputmode="decimal" min="0"></div><div class="form-group"><label for="w-p20">Εξαγορά 20% (μήνες)</label><input type="number" id="w-p20" inputmode="decimal" min="0"></div><div class="form-group"><label for="w-p20y">Έτος εξαγοράς 20%</label><input type="number" id="w-p20y" inputmode="decimal" min="1900" max="2100"></div>
+        </div>
+        <div class="wz-sub">Χρόνος σε άλλον φορέα</div>
+        <div class="wz-grid3">
+          <div class="form-group"><label for="w-oth-y">Έτη</label><input type="number" id="w-oth-y" inputmode="decimal" min="0" max="50"></div><div class="form-group"><label for="w-oth-m">Μήνες</label><input type="number" id="w-oth-m" inputmode="decimal" min="0" max="11"></div><div class="form-group"><label for="w-oth-d">Ημέρες</label><input type="number" id="w-oth-d" inputmode="decimal" min="0" max="30"></div>
+        </div>
+      </details>
+    </details>
+
+    <details class="wz-card">
+      <summary>2️⃣ Οικογενειακή κατάσταση</summary>
+      <p class="wz-hint">Επίδομα επικίνδυνου/ιδιαίτερων συνθηκών από 2027: <strong>με τέκνα 310 €</strong> (ανεξάρτητα από γάμο), <strong>έγγαμος 250 €</strong>, <strong>άγαμος 180 €</strong>. Όσο υπάρχει έστω και ένα τέκνο στο μισθολόγιο, ισχύει η κατηγορία «με τέκνα».</p>
+      <div class="wz-grid">
+        <div class="form-group"><label for="w-marr">Ημερομηνία γάμου</label><input type="text" id="w-marr" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div>
+        <div class="form-group"><label for="w-marr-x">Αφαίρεση γάμου από μισθολόγιο</label><input type="text" id="w-marr-x" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div>
+        <div class="form-group"><label for="w-c1">Τέκνο 1 – γέννηση</label><input type="text" id="w-c1" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c1x">Αφαίρεση από μισθολόγιο</label><input type="text" id="w-c1x" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c2">Τέκνο 2 – γέννηση</label><input type="text" id="w-c2" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c2x">Αφαίρεση από μισθολόγιο</label><input type="text" id="w-c2x" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div>
+      </div>
+      <details class="wz-inner"><summary>Περισσότερα τέκνα (3–6)</summary>
+        <div class="wz-grid"><div class="form-group"><label for="w-c3">Τέκνο 3 – γέννηση</label><input type="text" id="w-c3" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c3x">Αφαίρεση από μισθολόγιο</label><input type="text" id="w-c3x" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c4">Τέκνο 4 – γέννηση</label><input type="text" id="w-c4" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c4x">Αφαίρεση από μισθολόγιο</label><input type="text" id="w-c4x" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c5">Τέκνο 5 – γέννηση</label><input type="text" id="w-c5" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c5x">Αφαίρεση από μισθολόγιο</label><input type="text" id="w-c5x" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c6">Τέκνο 6 – γέννηση</label><input type="text" id="w-c6" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div><div class="form-group"><label for="w-c6x">Αφαίρεση από μισθολόγιο</label><input type="text" id="w-c6x" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div></div>
+      </details>
+    </details>
+
+    <details class="wz-card">
+      <summary>3️⃣ Επιδόματα</summary>
+      <div class="wz-grid">
+        <div class="form-group"><label for="w-param">Παραμεθόριο – από</label><input type="text" id="w-param" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div>
+        <div class="form-group"><label for="w-param-x">Παραμεθόριο – αφαίρεση</label><input type="text" id="w-param-x" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div>
+        <div class="form-group"><label for="w-new">Νέο επίδομα – από</label><input type="text" id="w-new" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div>
+        <div class="form-group"><label for="w-new-x">Νέο επίδομα – αφαίρεση</label><input type="text" id="w-new-x" class="compact-date" placeholder="ΗΗ/ΜΜ/ΕΕΕΕ" inputmode="numeric" autocomplete="off" oninput="autoFormatDate(this)"></div>
+        <div class="form-group"><label for="w-new-amt">Άλλο επίδομα (€ / μήνα)</label><input type="number" id="w-new-amt" inputmode="decimal" min="0" step="1"></div>
+      </div>
+      <p class="wz-hint">Το «Άλλο/Νέο επίδομα» μετράει <strong>μόνο στην κύρια σύνταξη</strong> (και στους προ-93). Δεν μπαίνει σε επικουρική, ΜΤΠΥ, εφάπαξ.</p>
+    </details>
+
+    <details class="wz-card">
+      <summary>4️⃣ Αφαίρεση μηνών επιδομάτων</summary>
+      <p class="wz-hint">Αν για κάποιο διάστημα ο υπάλληλος δεν έπαιρνε κάποιο επίδομα, βάλε τους μήνες. Αφαιρείται <em>ποσό × μήνες</em> από τις αποδοχές του <strong>2024</strong> κατά τον υπολογισμό (όπως στον παλιό τρόπο).</p>
+      <div class="wz-grid">
+        <div class="form-group"><label for="w-epik-amt">ΕΠΙΚ/ΑΝΘ – ποσό (€)</label><input type="number" id="w-epik-amt" inputmode="decimal" min="0" step="1"></div><div class="form-group"><label for="w-epik-mo">ΕΠΙΚ/ΑΝΘ – μήνες −</label><input type="number" id="w-epik-mo" inputmode="decimal" min="0"></div>
+        <div class="form-group"><label for="w-idk-amt">ΙΔ.ΚΑΘ – ποσό (€)</label><input type="number" id="w-idk-amt" inputmode="decimal" min="0" step="1"></div><div class="form-group"><label for="w-idk-mo">ΙΔ.ΚΑΘ – μήνες −</label><input type="number" id="w-idk-mo" inputmode="decimal" min="0"></div>
+        <div class="form-group"><label for="w-param-amt">Παραμεθόριο – ποσό (€)</label><input type="number" id="w-param-amt" inputmode="decimal" min="0" step="1"></div><div class="form-group"><label for="w-param-mo">Παραμεθόριο – μήνες −</label><input type="number" id="w-param-mo" inputmode="decimal" min="0"></div>
+        <div class="form-group"><label for="w-new-mo">Άλλο/Νέο επίδομα – μήνες −</label><input type="number" id="w-new-mo" inputmode="decimal" min="0"></div>
+      </div>
+    </details>
+
+    <details class="wz-card" open>
+      <summary>5️⃣ Συνταξιοδότηση</summary>
+      <div class="wz-grid">
+        <div class="form-group"><label for="w-dm">ΔΜ (%)</label><input type="number" id="w-dm" inputmode="decimal" step="0.1"></div>
+        <div class="form-group"><label for="w-natpen">Εθνική σύνταξη (€)</label><input type="number" id="w-natpen" inputmode="decimal" step="0.01"></div>
+        <div class="form-group"><label for="w-years">Έτη για ποσοστό αναπλήρωσης <button type="button" id="w-years-auto" class="wz-mini" title="Επαναφορά στο αυτόματο">αυτόματο</button></label><input type="number" id="w-years" inputmode="numeric" min="15" max="50"><small id="w-years-info" class="wz-small"></small></div>
+        <div class="form-group"><label for="w-kids-tax">Τέκνα (για φόρο)</label><select id="w-kids-tax"><option value="0">0 τέκνα</option><option value="1">1 τέκνο</option><option value="2">2 τέκνα</option><option value="3">3 τέκνα</option><option value="4">4+ τέκνα</option></select></div>
+        <div class="form-group"><label for="w-age">Ηλικία συνταξιοδότησης (επικουρική)</label><input type="number" id="w-age" inputmode="decimal" min="40" max="72"></div>
+        <div class="form-group"><label for="w-suppyrs">Έτη ασφάλισης επικουρικής έως 2014</label><input type="number" id="w-suppyrs" inputmode="decimal" min="0" step="0.01"></div>
+        <div class="form-group"><label for="w-mtpyyrs">Έτη με εισφορές ΜΤΠΥ</label><input type="number" id="w-mtpyyrs" inputmode="decimal" min="0" step="0.01"></div>
+        <div class="form-group"><label for="w-mtpyf">Συντελεστής ΜΤΠΥ (%)</label><input type="number" id="w-mtpyf" inputmode="decimal" step="0.001"></div>
+        <div class="form-group"><label for="w-efmul">Έτη για εφάπαξ (σύνολο ως 2013)</label><input type="number" id="w-efmul" inputmode="decimal" step="0.5" min="0" max="50"></div>
+      </div>
+      <p class="wz-hint">Αν αφήσεις κενά τα «έτη επικουρικής», την «ηλικία» ή τα «έτη ΜΤΠΥ», παραλείπεται το αντίστοιχο κομμάτι.</p>
+    </details>
+
+    <button type="button" id="wz-run" class="wz-run">🧮 ΥΠΟΛΟΓΙΣΜΟΣ ΟΛΩΝ</button>
+    <div id="wz-warn" class="wz-warn" style="display:none"></div>
+
+    <div id="wz-results" class="wz-results" style="display:none">
+      <h4 class="wz-res-title">📊 Αποτελέσματα</h4>
+      <div class="wz-liq">
+        <h5>📊 Συνολική Εκκαθάριση</h5>
+        <div class="wz-liq-row"><span>Μηνιαία Ακαθάριστα:</span><strong id="wz-gross">—</strong></div>
+        <div class="wz-liq-row"><span>Ετήσιο Ακαθάριστο:</span><strong id="wz-gross-y">—</strong></div>
+        <div class="wz-liq-row wz-liq-tax"><span>Ετήσιος Φόρος:</span><strong id="wz-tax">—</strong></div>
+        <div class="wz-liq-net"><span>ΚΑΘΑΡΟ ΜΗΝΙΑΙΟ (μετά φόρο):</span><strong id="wz-net">—</strong></div>
+        <small class="wz-small">Ο φόρος υπολογίζεται με βάση τα «Τέκνα (για φόρο)» της ενότητας 5.</small>
+      </div>
+      <div class="wz-cards">
+        <div class="wz-res"><span>Κύρια σύνταξη<br><small>(με εθνική, μετά κράτηση υγείας)</small></span><strong id="wz-main">—</strong></div>
+        <div class="wz-res"><span>Επικουρική<br><small>(μετά κράτηση υγείας)</small></span><strong id="wz-supp">—</strong></div>
+        <div class="wz-res"><span>ΜΤΠΥ<br><small>(μέρισμα)</small></span><strong id="wz-mtpy">—</strong></div>
+        <div class="wz-res"><span>Εφάπαξ</span><strong id="wz-efapax">—</strong></div>
+      </div>
+      <details class="wz-inner"><summary>Λεπτομέρειες υπολογισμού</summary>
+        <div id="wz-details" class="wz-details"></div>
+      </details>
+      <div class="wz-sub">Άνοιγμα παλιών καρτελών για έλεγχο / χειροκίνητο υπολογισμό:</div>
+      <div class="wz-links">
+        <button type="button" data-open="pensionable-earnings">📊 ΥΠΟΛ ΣΥΝΤΑΞΗΣ</button>
+        <button type="button" data-open="supplementary">🏦 ΕΠΙΚΟΥΡΙΚΗ</button>
+        <button type="button" data-open="mtpy">📊 ΜΤΠΥ</button>
+        <button type="button" data-open="efapax">💼 ΕΦΑΠΑΞ</button>
+        <button type="button" data-open="2000-07-08">2000/07/08</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="pensionable-earnings-calc" class="calculator-form">
                 <h3>📊 ΥΠΟΛΟΓΙΣΜΟΣ ΣΥΝΤΑΞΙΜΩΝ ΑΠΟΔΟΧΩΝ</h3>
                 
                 <div class="instruction">
@@ -3327,7 +3443,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <!-- ΝΕΟ: Πεδίο Ετών -->
             <div class="form-group">
-                <label for="yearsMultiplier">Έτη:</label>
+                <label for="yearsMultiplier">Έτη (σύνολο ως 2013):</label>
                 <input type="number" id="yearsMultiplier" value="13" step="0.5" min="0" max="50" placeholder="Π.χ. 5 ή 6.5">
                 <small>Συμπληρώστε τα έτη που θέλετε να πολλαπλασιαστούν</small>
             </div>
@@ -5557,12 +5673,14 @@ function calculatePensionableSalary() {
         if (yearlyAmountFromTable > 0) {
             totalAdjustedMain += (yearlyAmountFromTable * dtk);
 
+            // Για επικουρική & ΜΤΠΥ: χωρίς το ΝΕΟ ΕΠΙΔΟΜΑ (μετράει μόνο στην κύρια σύνταξη)
+            const supplBase = getEarningsExNewAllowance(year, yearlyAmountFromTable);
             if (purchaseMonths20 > 0 && year === purchaseYear20) {
                 const monthsInTable = (year === selectedYear) ? (actualMonths % 12 || 12) : 12;
-                const cleanAmount = (yearlyAmountFromTable / (monthsInTable + purchaseMonths20)) * monthsInTable;
+                const cleanAmount = (supplBase / (monthsInTable + purchaseMonths20)) * monthsInTable;
                 totalAdjustedSuppl += (cleanAmount * dtk);
             } else {
-                totalAdjustedSuppl += (yearlyAmountFromTable * dtk);
+                totalAdjustedSuppl += (supplBase * dtk);
             }
         }
     }
@@ -5896,7 +6014,7 @@ function autoFillSupplementaryFromPensionTable() {
         for (let year = 2002; year <= 2014; year++) {
             const earningsInput = document.getElementById(`earnings-${year}`);
             if (earningsInput) {
-                const earnings = parseFloat(earningsInput.value) || 0;
+                const earnings = getEarningsExNewAllowance(year, parseFloat(earningsInput.value) || 0);
                 const dtkProductUpTo2013 = getDtkProduct(year, 2013);
                 const value = earnings * dtkProductUpTo2013;
                 totalAdjusted += value;
@@ -6009,7 +6127,7 @@ function autoFillContributionsFromPensionTable() {
             const earningsInput = document.getElementById(`earnings-${year}`);
             
             if (earningsInput && earningsInput.value) {
-                let yearlyEarnings = parseFloat(earningsInput.value) || 0;
+                let yearlyEarnings = getEarningsExNewAllowance(year, parseFloat(earningsInput.value) || 0);
                 
                 // ΑΝ ΕΙΝΑΙ ΤΟ ΕΤΟΣ ΕΞΑΓΟΡΑΣ, ΑΦΑΙΡΟΥΜΕ ΤΟ ΠΟΣΟ
                 if (purchaseMonths20 > 0 && year === purchaseYear20) {
@@ -7261,6 +7379,65 @@ function calculateServiceYearsForYear(entryDate, targetYear, preServiceYears) {
     return Math.max(0, yearsInService);
 }
 
+
+// =====================================================================
+// ΝΕΟ ΕΠΙΔΟΜΑ ("ΑΛΛΟ ΕΠΙΔΟΜΑ"): μετράει ΜΟΝΟ στην κύρια σύνταξη (και στους προ-93).
+// Δεν μπαίνει σε επικουρική, ΜΤΠΥ, ΕΦΑΠΑΞ.
+// =====================================================================
+window.newAllowanceByYear = window.newAllowanceByYear || {};
+try {
+    const _na = JSON.parse(localStorage.getItem('newAllowanceByYear') || 'null');
+    if (_na && typeof _na === 'object') window.newAllowanceByYear = _na;
+} catch (e) {}
+
+// Ποσό "ΑΛΛΟ ΕΠΙΔΟΜΑ" (0 όταν γίνεται υπολογισμός "χωρίς νέο επίδομα")
+function getNewAllowanceSetting() {
+    if (window.__noNewAllowance) return 0;
+    return parseFloat(document.getElementById('allepidoma')?.value) || 0;
+}
+
+// Μέσο μηνιαίο ποσό ΜΟΝΟ του νέου επιδόματος (για προ-93), για τους μήνες firstMonth..lastMonth
+function getNewAllowanceOnlyAvg(year, firstMonth, lastMonth) {
+    const amount = getNewAllowanceSetting();
+    if (amount <= 0 || lastMonth < firstMonth) return 0;
+    const from = document.getElementById('id-synthikon-date')?.value;
+    const to = document.getElementById('id-synthikon-deduction')?.value;
+    if (!from) return 0;
+    let active = 0;
+    for (let m = firstMonth; m <= lastMonth; m++) {
+        if (isMonthActive2027(year, m, from, to)) active++;
+    }
+    return amount * active / (lastMonth - firstMonth + 1);
+}
+
+// Υπολογίζει πόσο από τις αποδοχές κάθε έτους οφείλεται στο νέο επίδομα
+// (διαφορά αποδοχών με/χωρίς το επίδομα) και το αποθηκεύει.
+function computeNewAllowanceMap(salaryWith) {
+    const map = {};
+    try {
+        window.__noNewAllowance = true;
+        const without = calculateCompleteSalaryHistory();
+        Object.keys(salaryWith).forEach(y => {
+            const d = (salaryWith[y].pensionableEarnings || 0) - ((without[y] && without[y].pensionableEarnings) || 0);
+            if (Math.abs(d) > 0.004) map[y] = Math.round(d * 100) / 100;
+        });
+    } catch (e) {
+        console.error('Σφάλμα υπολογισμού νέου επιδόματος:', e);
+    } finally {
+        window.__noNewAllowance = false;
+    }
+    window.newAllowanceByYear = map;
+    try { localStorage.setItem('newAllowanceByYear', JSON.stringify(map)); } catch (e) {}
+    return map;
+}
+
+// Αποδοχές έτους ΧΩΡΙΣ το νέο επίδομα (για επικουρική, ΜΤΠΥ, ΕΦΑΠΑΞ)
+function getEarningsExNewAllowance(year, value) {
+    const x = parseFloat((window.newAllowanceByYear || {})[String(year)]) || 0;
+    if (!x) return value;
+    return Math.max(0, value - x);
+}
+
 // =====================================================================
 // ΝΕΟ ΜΙΣΘΟΛΟΓΙΟ ΑΠΟ 1/1/2027  (ισχύει ΜΟΝΟ για έτη >= 2027)
 // Μέχρι 31/12/2026 όλοι οι υπολογισμοί παραμένουν ως είχαν.
@@ -7383,7 +7560,7 @@ function getMonthlyAllowance2027(year, month) {
     }
 
     // "Νέο επίδομα" (ελεύθερο ποσό, ίδια πεδία με πριν)
-    const otherAmount = parseFloat(document.getElementById('allepidoma')?.value) || 0;
+    const otherAmount = getNewAllowanceSetting();
     if (otherAmount > 0 && isMonthActive2027(year, month,
             document.getElementById('id-synthikon-date')?.value,
             document.getElementById('id-synthikon-deduction')?.value)) {
@@ -7828,8 +8005,14 @@ calcTypeButtons.forEach(button => {
     });
 });
 // ΤΕΛΙΚΗ ΣΥΝΑΡΤΗΣΗ ΑΦΑΙΡΕΣΗΣ - ΔΙΟΡΘΩΜΕΝΗ
-function deductAllowanceMonths() {
+function deductAllowanceMonths(silent) {
+    const isSilent = (silent === true);
     console.log("🧮 Αφαίρεση μηνών...");
+    if (!isSilent && window.__monthsDeductionApplied) {
+        alert("ℹ️ Η αφαίρεση μηνών έχει ήδη εφαρμοστεί στον τελευταίο υπολογισμό.\nΓια να την ξαναεφαρμόσεις, κάνε πρώτα νέο υπολογισμό αποδοχών.");
+        return;
+    }
+    let allepidomaPart = 0;
     
     // Υπολογισμός αφαίρεσης
     let deduction = 0;
@@ -7847,7 +8030,7 @@ function deductAllowanceMonths() {
     
     const allepidomaAmount = parseFloat(document.getElementById('allepidoma').value) || 0;
     const allepidomaMonths = parseInt(document.getElementById('allepidoma-months').value) || 0;
-    if (allepidomaMonths > 0) deduction += allepidomaAmount * allepidomaMonths;
+    if (allepidomaMonths > 0) { allepidomaPart = allepidomaAmount * allepidomaMonths; deduction += allepidomaPart; }
     
     if (deduction > 0) {
         const earnings2024 = document.getElementById('earnings-2024');
@@ -7859,6 +8042,13 @@ function deductAllowanceMonths() {
             
             // 1. ΑΛΛΑΓΗ ΤΗΣ ΤΙΜΗΣ
             earnings2024.value = newValue.toFixed(2);
+            window.__monthsDeductionApplied = true;
+            // Το κομμάτι που αφορά το ΝΕΟ/ΑΛΛΟ ΕΠΙΔΟΜΑ ισχύει μόνο για την κύρια σύνταξη
+            if (allepidomaPart > 0) {
+                window.newAllowanceByYear = window.newAllowanceByYear || {};
+                window.newAllowanceByYear['2024'] = (parseFloat(window.newAllowanceByYear['2024']) || 0) - allepidomaPart;
+                try { localStorage.setItem('newAllowanceByYear', JSON.stringify(window.newAllowanceByYear)); } catch (e) {}
+            }
             
             // 2. ΑΠΟΘΗΚΕΥΣΗ
             const saved = JSON.parse(localStorage.getItem('pensionableEarnings')) || {};
@@ -7883,10 +8073,10 @@ function deductAllowanceMonths() {
                 console.log("Ενημερώθηκαν οι υπολογισμοί");
             }, 100);
             
-            alert(`✅ Αφαιρέθηκαν ${deduction}€\nΠαλιά: ${current.toFixed(2)}€\nΝέα: ${newValue.toFixed(2)}€`);
+            if (!isSilent) alert(`✅ Αφαιρέθηκαν ${deduction}€\nΠαλιά: ${current.toFixed(2)}€\nΝέα: ${newValue.toFixed(2)}€`);
         }
     } else {
-        alert("Δεν βρέθηκαν μήνες για αφαίρεση");
+        if (!isSilent) alert("Δεν βρέθηκαν μήνες για αφαίρεση");
     }
 }
 
@@ -8486,7 +8676,7 @@ if (childrenAllowance > 0) {
     // ΝΕΟ ΕΠΙΔΟΜΑ
     let newAllowanceDate = document.getElementById('id-synthikon-date')?.value;
     let newAllowanceDeduction = document.getElementById('id-synthikon-deduction')?.value;
-    let newAllowanceAmount = parseFloat(document.getElementById('allepidoma').value) || 0;
+    let newAllowanceAmount = getNewAllowanceSetting();
     
     if (newAllowanceDate && newAllowanceAmount > 0) {
         let months = calculateAllowanceMonths(newAllowanceDate, year);
@@ -8854,7 +9044,7 @@ function transferPensionToEfapaxData() {
             const efapaxInput = document.getElementById(`earnings${year}`);
             
             if (pensionInput && efapaxInput && pensionInput.value) {
-                let value = parseFloat(pensionInput.value);
+                let value = getEarningsExNewAllowance(year, parseFloat(pensionInput.value) || 0);
                 
                 if (year === 2009) {
                     value = (value / 14) * 12;
@@ -8977,7 +9167,7 @@ function calculateAndTransferPost2014Contributions() {
     for (let year = 2014; year <= 2040; year++) {
         const earningsInput = document.getElementById(`earnings-${year}`);
         if (earningsInput && earningsInput.value) {
-            let earnings = parseFloat(earningsInput.value) || 0;
+            let earnings = getEarningsExNewAllowance(year, parseFloat(earningsInput.value) || 0);
             
             // Έλεγχος για εξαγορά 20% (αν χρειάζεται)
             const purchaseYear20 = parseInt(document.getElementById('purchase-year-20').value) || 0;
@@ -9239,18 +9429,23 @@ function calculateCompleteSalaryHistory() {
         const maxMonths = (year <= 2009) ? 14 : 12;
         monthsWorked = Math.max(0, Math.min(maxMonths, monthsWorked));
         
-        // ΝΕΟ ΜΙΣΘΟΛΟΓΙΟ ΑΠΟ 1/1/2027: τα επιδόματα (επικίνδυνο/ιδ.συνθηκών ανά οικογενειακή
-        // κατάσταση, τέκνα, παραμεθόριο) υπολογίζονται ΜΗΝΑ ΜΗΝΑ μόνο για τους μήνες υπηρεσίας
-        if (year >= PAYROLL_2027.startYear && !isPre93) {
-            let firstMonth = 1, lastMonth = 12;
-            if (year === entryDate.getFullYear()) {
-                const em = entryDate.getMonth(), ed = entryDate.getDate();
-                firstMonth = ((ed > 15) ? em + 1 : em) + 1;
-            }
-            if (year === exitDate.getFullYear()) {
-                const xm = exitDate.getMonth(), xd = exitDate.getDate();
-                lastMonth = (xd < 15) ? xm : xm + 1;
-            }
+        // Μήνες υπηρεσίας μέσα στο έτος (για μηνιαίο υπολογισμό επιδομάτων)
+        let firstMonth = 1, lastMonth = 12;
+        if (year === entryDate.getFullYear()) {
+            const em = entryDate.getMonth(), ed = entryDate.getDate();
+            firstMonth = ((ed > 15) ? em + 1 : em) + 1;
+        }
+        if (year === exitDate.getFullYear()) {
+            const xm = exitDate.getMonth(), xd = exitDate.getDate();
+            lastMonth = (xd < 15) ? xm : xm + 1;
+        }
+        
+        if (isPre93) {
+            // ΠΡΟ-93: μόνο βασικός + ΝΕΟ ΕΠΙΔΟΜΑ (το οποίο μετράει ΜΟΝΟ στην κύρια σύνταξη)
+            monthlyAllowances = getNewAllowanceOnlyAvg(year, firstMonth, lastMonth);
+        } else if (year >= PAYROLL_2027.startYear) {
+            // ΝΕΟ ΜΙΣΘΟΛΟΓΙΟ ΑΠΟ 1/1/2027: τα επιδόματα (επικίνδυνο/ιδ.συνθηκών ανά οικογενειακή
+            // κατάσταση, τέκνα, παραμεθόριο) υπολογίζονται ΜΗΝΑ ΜΗΝΑ μόνο για τους μήνες υπηρεσίας
             monthlyAllowances = getAllowances2027(year, firstMonth, lastMonth);
         }
         
@@ -9414,6 +9609,9 @@ function calculateAutoPensionWithPurchase() {
         
         // 2. ΣΥΓΚΕΝΤΡΩΣΗ ΔΕΔΟΜΕΝΩΝ
         const salaryData = calculateCompleteSalaryHistory();
+        // Το ΝΕΟ ΕΠΙΔΟΜΑ μετράει ΜΟΝΟ στην κύρια σύνταξη: καταγράφουμε πόσο έχει μπει σε κάθε έτος
+        computeNewAllowanceMap(salaryData);
+        window.__monthsDeductionApplied = false;
         
         // 3. ΒΕΒΑΙΩΣΗ ΟΤΙ Ο ΠΙΝΑΚΑΣ ΕΧΕΙ ΑΡΧΙΚΟΠΟΙΗΘΕΙ
         initializePensionableEarningsTable();
@@ -9840,7 +10038,7 @@ function transferPensionToEfapaxDataWithDeduction() {
             const efapaxInput = document.getElementById(`earnings${year}`);
             
             if (pensionInput && efapaxInput && pensionInput.value) {
-                let value = parseFloat(pensionInput.value);
+                let value = getEarningsExNewAllowance(year, parseFloat(pensionInput.value) || 0);
                 
                 // ΑΦΑΙΡΕΣΗ ΕΞΑΓΟΡΑΣ
                 if (year === purchaseYear20 && purchaseAmount20 > 0) {
@@ -9865,7 +10063,7 @@ function transferPensionToEfapaxDataWithDeduction() {
        for (let year = 2014; year <= 2040; year++) {
             const earningsInput = document.getElementById(`earnings-${year}`);
             if (earningsInput && earningsInput.value) {
-                let earnings = parseFloat(earningsInput.value) || 0;
+                let earnings = getEarningsExNewAllowance(year, parseFloat(earningsInput.value) || 0);
                 
                 if (year === purchaseYear20 && purchaseAmount20 > 0) {
                     earnings = Math.max(0, earnings - purchaseAmount20);
@@ -10517,6 +10715,340 @@ document.addEventListener('DOMContentLoaded', function() {
 
             alert("Η επαναφορά ολοκληρώθηκε επιτυχώς! Οι βάρδιες επανήλθαν στις αρχικές τιμές.");
         }
+    });
+})();
+</script>
+
+
+<style>
+/* ===== ΝΕΑ ΑΠΛΗ ΟΘΟΝΗ (wizard) ===== */
+.wz { max-width: 760px; margin: 0 auto; }
+.wz-title { margin: 0 0 .4rem; }
+.wz-hint { font-size: .88rem; opacity: .85; margin: .4rem 0 .7rem; line-height: 1.4; }
+.wz-card { border: 1px solid rgba(127,127,127,.35); border-radius: 10px; padding: .55rem .8rem .8rem; margin: .6rem 0; background: rgba(127,127,127,.06); }
+.wz-card > summary { font-weight: 700; cursor: pointer; padding: .35rem 0; font-size: 1.05rem; }
+.wz-inner { border: 1px dashed rgba(127,127,127,.4); border-radius: 8px; padding: .4rem .6rem; margin: .6rem 0 .2rem; }
+.wz-inner > summary { cursor: pointer; font-weight: 600; padding: .25rem 0; }
+.wz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem .8rem; }
+.wz-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem .8rem; }
+.wz .form-group { margin-bottom: .2rem; }
+.wz .form-group label { font-size: .85rem; display: block; margin-bottom: .2rem; }
+.wz input[type="text"], .wz input[type="number"], .wz select { width: 100%; box-sizing: border-box; min-height: 42px; font-size: 16px; }
+.wz-check { display: flex; gap: .5rem; align-items: center; margin: .6rem 0; font-size: .92rem; }
+.wz-check input { width: 20px; height: 20px; flex: none; }
+.wz-sub { font-weight: 600; margin: .7rem 0 .3rem; font-size: .95rem; }
+.wz-small { display: block; font-size: .78rem; opacity: .8; margin-top: .2rem; }
+.wz-mini { font-size: .7rem; padding: 1px 6px; margin-left: 4px; border-radius: 10px; cursor: pointer; }
+.wz-run { width: 100%; font-size: 1.15rem; font-weight: 700; padding: .9rem; margin: .9rem 0 .4rem; background: #2e7d32; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
+.wz-run:disabled { opacity: .6; cursor: wait; }
+.wz-warn { background: #fff3cd; color: #664d03; border: 1px solid #ffe69c; border-radius: 8px; padding: .6rem .8rem; margin: .5rem 0; font-size: .9rem; line-height: 1.45; }
+.wz-res-title { margin: 1rem 0 .5rem; }
+.wz-hero { background: #1b5e20; color: #fff; border-radius: 12px; padding: .9rem 1rem; text-align: center; margin-bottom: .6rem; }
+.wz-hero span { display: block; font-size: .9rem; opacity: .9; }
+.wz-hero strong { display: block; font-size: 1.9rem; margin-top: .2rem; }
+.wz-liq { background: #f1f8e9; color: #1b3a1d; border: 2px solid #2e7d32; border-radius: 12px; padding: .8rem .9rem; margin-bottom: .7rem; }
+.wz-liq h5 { margin: 0 0 .6rem; text-align: center; color: #1b5e20; font-size: 1.05rem; }
+.wz-liq-row { display: flex; justify-content: space-between; gap: .6rem; padding: .35rem 0; border-bottom: 1px solid #c8e6c9; }
+.wz-liq-tax { color: #d32f2f; }
+.wz-liq-net { display: flex; justify-content: space-between; align-items: center; gap: .6rem; padding-top: .6rem; color: #1b5e20; font-weight: 700; }
+.wz-liq-net strong { font-size: 1.6rem; white-space: nowrap; }
+.wz-liq .wz-small { color: #1b3a1d; margin-top: .5rem; }
+.wz-cards { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.wz-res { border: 1px solid rgba(127,127,127,.35); border-radius: 10px; padding: .6rem .7rem; background: rgba(127,127,127,.06); display: flex; flex-direction: column; justify-content: space-between; gap: .3rem; }
+.wz-res span { font-size: .82rem; opacity: .9; }
+.wz-res strong { font-size: 1.25rem; }
+.wz-details { display: grid; grid-template-columns: 1fr auto; gap: .25rem .8rem; font-size: .9rem; padding: .3rem 0; }
+.wz-details b { text-align: right; }
+.wz-links { display: flex; flex-wrap: wrap; gap: .4rem; }
+.wz-links button { padding: .45rem .7rem; border-radius: 8px; cursor: pointer; font-size: .85rem; }
+/* Υπερισχύουν των γενικών στυλ της σελίδας (στενά/κεντραρισμένα πεδία, μεγάλα κουμπιά) */
+.wz .form-group { text-align: left !important; }
+.wz .form-group label { text-align: left !important; }
+.wz input[type="text"], .wz input[type="number"], .wz select { width: 100% !important; max-width: none !important; text-align: left !important; box-sizing: border-box !important; }
+.wz input[type="checkbox"] { width: 20px !important; min-height: 0 !important; }
+.wz .wz-mini { min-height: 0 !important; width: auto !important; padding: 1px 8px !important; background: rgba(127,127,127,.25) !important; color: inherit !important; font-size: .72rem !important; font-weight: 400 !important; }
+.wz .wz-links button { min-height: 0 !important; width: auto !important; }
+.wz .wz-run { width: 100% !important; }
+.wz-card > summary, .wz-inner > summary { text-align: left; }
+@media (max-width: 360px) {
+  .wz-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .wz-grid3 { gap: .4rem .5rem; }
+  .wz-hero strong { font-size: 1.6rem; }
+}
+</style>
+
+<script>
+// =====================================================================
+// ΝΕΑ ΑΠΛΗ ΟΘΟΝΗ "ΣΥΝΤΑΞΗ (ΕΥΚΟΛΑ)"
+// Συγχρονίζεται με τα πεδία των παλιών καρτελών και τρέχει όλη τη ροή με ένα κουμπί.
+// Δεν αλλάζει κανέναν υπολογισμό των παλιών καρτελών.
+// =====================================================================
+(function () {
+    const MAP = [
+        // [πεδίο νέας οθόνης, πεδίο παλιάς καρτέλας, τύπος: t=κείμενο, c=checkbox]
+        ['w-start','service-start-date'],['w-end','service-end-date'],['w-pre93','is-pre-1993','c'],
+        ['w-rec-y','years-recognition'],['w-rec-m','months-recognition'],['w-rec-d','days-recognition'],
+        ['w-p667','purchase-months-667'],['w-p20','purchase-months-20'],['w-p20y','purchase-year-20'],
+        ['w-oth-y','other-entity-years'],['w-oth-m','other-entity-months'],['w-oth-d','other-entity-days'],
+        ['w-marr','marriage-date'],['w-marr-x','marriage-deduction'],
+        ['w-c1','child1-date'],['w-c1x','child1-deduction'],['w-c2','child2-date'],['w-c2x','child2-deduction'],
+        ['w-c3','child3-date'],['w-c3x','child3-deduction'],['w-c4','child4-date'],['w-c4x','child4-deduction'],
+        ['w-c5','child5-date'],['w-c5x','child5-deduction'],['w-c6','child6-date'],['w-c6x','child6-deduction'],
+        ['w-param','paramethorio-date'],['w-param-x','paramethorio-deduction'],
+        ['w-new','id-synthikon-date'],['w-new-x','id-synthikon-deduction'],['w-new-amt','allepidoma'],
+        ['w-epik-amt','epik-anthropinas'],['w-epik-mo','epik-months'],
+        ['w-idk-amt','id-synthikon'],['w-idk-mo','id-synthikon-months'],
+        ['w-param-amt','paramethorio'],['w-param-mo','paramethorio-months'],
+        ['w-new-mo','allepidoma-months'],
+        ['w-dm','dm-percentage'],['w-natpen','national-pension'],['w-years','total-years-pension'],
+        ['w-kids-tax','pension-children-final'],
+        ['w-age','currentAge'],['w-suppyrs','supplementaryYears'],['w-mtpyyrs','mtpyYears'],
+        ['w-mtpyf','mtpyFactor'],['w-efmul','yearsMultiplier']
+    ];
+    const $ = id => document.getElementById(id);
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const numOf = t => { const v = parseFloat(String(t == null ? '' : t).replace('€','').trim().replace(',', '.')); return isNaN(v) ? 0 : v; };
+    const fmt = v => (isNaN(v) ? 0 : v).toLocaleString('el-GR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    let ran = false, timer = null, running = false;
+
+    // ---------- συγχρονισμός νέα <-> παλιά ----------
+    function toWiz(wid, oid, kind) {
+        const w = $(wid), o = $(oid); if (!w || !o) return;
+        if (kind === 'c') { if (w.checked !== o.checked) w.checked = o.checked; }
+        else if (w.value !== o.value) w.value = o.value;
+    }
+    function toOld(wid, oid, kind) {
+        const w = $(wid), o = $(oid); if (!w || !o) return;
+        if (kind === 'c') { o.checked = w.checked; }
+        else { o.value = w.value; }
+        o.dispatchEvent(new Event('input', { bubbles: true }));
+        o.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function syncAllFromOld() { MAP.forEach(([w, o, k]) => toWiz(w, o, k)); }
+
+    function init() {
+        if (!$('wizard-calc')) return;
+        MAP.forEach(([wid, oid, kind]) => {
+            const w = $(wid), o = $(oid);
+            if (!w || !o) { console.warn('wizard: λείπει πεδίο', wid, oid); return; }
+            const handlerW = (e) => {
+                if (wid === 'w-years' && e && e.isTrusted) w.dataset.touched = '1';
+                toOld(wid, oid, kind);
+                schedule();
+            };
+            w.addEventListener('input', handlerW);
+            w.addEventListener('change', handlerW);
+            const handlerO = (e) => {
+                if (oid === 'total-years-pension' && e && e.isTrusted && $('w-years')) $('w-years').dataset.touched = '1';
+                toWiz(wid, oid, kind);
+            };
+            o.addEventListener('input', handlerO);
+            o.addEventListener('change', handlerO);
+        });
+        syncAllFromOld();
+        $('wz-run').addEventListener('click', () => runAll());
+        $('w-years-auto').addEventListener('click', () => { $('w-years').dataset.touched = ''; runAll(); });
+        document.querySelectorAll('#wizard-calc [data-open]').forEach(b => {
+            b.addEventListener('click', () => {
+                const t = document.querySelector('.calc-type-btn[data-calc="' + b.getAttribute('data-open') + '"]');
+                if (t) t.click();
+            });
+        });
+        // όταν ανοίγει η καρτέλα, ξανα-συγχρονισμός (π.χ. αν άλλαξαν στοιχεία στις παλιές καρτέλες)
+        const tabBtn = document.querySelector('.calc-type-btn[data-calc="wizard"]');
+        if (tabBtn) tabBtn.addEventListener('click', syncAllFromOld);
+    }
+
+    function schedule() {
+        if (!ran) return;
+        clearTimeout(timer);
+        timer = setTimeout(() => { const f = $('wizard-calc'); if (f && f.classList.contains('active')) runAll(true); }, 900);
+    }
+
+    // ---------- έλεγχοι ----------
+    function validDate(str) {
+        if (!str || String(str).length < 10) return null;
+        try { const d = parseDateInput(str); return (d && !isNaN(d.getTime())) ? d : null; } catch (e) { return null; }
+    }
+    function warnBox(list) {
+        const b = $('wz-warn');
+        if (!list.length) { b.style.display = 'none'; b.innerHTML = ''; return; }
+        b.style.display = 'block';
+        b.innerHTML = list.map(x => '⚠️ ' + x).join('<br>');
+    }
+
+    // ---------- κύρια ροή ----------
+    async function runAll(auto) {
+        if (running) return;
+        const warns = [];
+        const start = validDate($('w-start').value), end = validDate($('w-end').value);
+        if (!start || !end) { warnBox(['Συμπλήρωσε σωστά (ΗΗ/ΜΜ/ΕΕΕΕ) την ημερομηνία ανάληψης και την ημερομηνία εξόδου.']); return; }
+        if (end <= start) { warnBox(['Η ημερομηνία εξόδου πρέπει να είναι μετά την ημερομηνία ανάληψης.']); return; }
+
+        running = true;
+        const btn = $('wz-run'); btn.disabled = true; const oldLabel = btn.textContent; btn.textContent = '⏳ Υπολογίζω…';
+        const origAlert = window.alert, origSwitch = window.switchToPensionTab;
+        const alerts = [];
+        window.alert = (m) => { alerts.push(String(m)); };
+        if (typeof origSwitch === 'function') window.switchToPensionTab = function () {};
+
+        const step = async (name, fn) => {
+            try { await fn(); } catch (e) { console.error('wizard βήμα', name, e); warns.push('Πρόβλημα στο βήμα «' + name + '»: ' + (e && e.message ? e.message : e)); }
+        };
+
+        try {
+            // συγχρονισμός όλων των πεδίων προς τα παλιά (ασφάλεια)
+            MAP.forEach(([w, o, k]) => { const we = $(w), oe = $(o); if (!we || !oe) return; if (k === 'c') oe.checked = we.checked; else oe.value = we.value; });
+
+            // 1) αποδοχές ανά έτος (νέος/παλιός τρόπος, ό,τι ισχύει για κάθε έτος)
+            await step('αποδοχές', async () => { calculateAutoPension(); });
+
+            // 2) αφαίρεση μηνών επιδομάτων (αν υπάρχουν)
+            await step('αφαίρεση μηνών', async () => {
+                const ids = ['epik-months','id-synthikon-months','paramethorio-months','allepidoma-months'];
+                if (ids.some(id => (parseInt($(id) && $(id).value) || 0) > 0)) {
+                    deductAllowanceMonths(true);
+                    await sleep(200);
+                }
+            });
+
+            // 3) έτος/μήνας εξόδου
+            let exitYear = end.getFullYear();
+            let exitMonth = (end.getDate() < 15) ? end.getMonth() : end.getMonth() + 1;
+            if (exitMonth === 0) { exitYear -= 1; exitMonth = 12; }
+            const ySel = $('selected-year');
+            if (ySel) {
+                if (![...ySel.options].some(o => o.value === String(exitYear))) ySel.add(new Option(exitYear, exitYear));
+                ySel.value = String(exitYear);
+            }
+            if ($('selected-month')) $('selected-month').value = String(exitMonth);
+
+            // 4) συντάξιμος μισθός
+            await step('συντάξιμος μισθός', async () => { calculatePensionableSalary(); });
+
+            // 5) έτη ασφάλισης -> ποσοστό αναπλήρωσης -> κύρια σύνταξη
+            let yrsTxt = '';
+            await step('κύρια σύνταξη', async () => {
+                calculateTotalYears();
+                const t = ($('total-years-result') && $('total-years-result').textContent) || '';
+                const m = t.match(/(\d+)\s*έτη,\s*(\d+)\s*μήνες,\s*(\d+)\s*ημέρες/);
+                if (m) {
+                    yrsTxt = m[1] + ' έτη, ' + m[2] + ' μήνες, ' + m[3] + ' ημέρες';
+                    if (!$('w-years').dataset.touched) {
+                        $('w-years').value = m[1]; $('total-years-pension').value = m[1];
+                    }
+                }
+                $('w-years-info').textContent = yrsTxt ? ('Υπολογίστηκαν: ' + yrsTxt + ($('w-years').dataset.touched ? ' (έχεις βάλει δικό σου αριθμό)' : '')) : '';
+                updatePensionPercentage();
+                calculateFinalPension();
+            });
+
+            // 6) επικουρική
+            await step('επικουρική', async () => {
+                const sy = parseFloat($('w-suppyrs').value) || 0;
+                const age = parseInt($('w-age').value) || 0;
+                if (sy > 0 && start.getFullYear() <= 2014) {
+                    autoFillSupplementaryFromPensionTable(); calculateSupplementary2014();
+                } else {
+                    if ($('supplementary2014-result')) $('supplementary2014-result').innerHTML = '';
+                    if (start.getFullYear() <= 2014) warns.push('Δεν συμπλήρωσες «Έτη ασφάλισης επικουρικής έως 2014» – παραλείφθηκε το κομμάτι έως 2014.');
+                }
+                if (age > 0 && exitYear >= 2015) {
+                    if (typeof updateRanta === 'function') updateRanta();
+                    autoFillContributionsFromPensionTable(); calculateSupplementary2015();
+                } else {
+                    if ($('supplementary2015-result')) $('supplementary2015-result').innerHTML = '';
+                    if (exitYear >= 2015) warns.push('Δεν συμπλήρωσες «Ηλικία συνταξιοδότησης» – παραλείφθηκε η επικουρική μετά το 2014.');
+                }
+                if (typeof updateTotalSupplementary === 'function') updateTotalSupplementary();
+            });
+
+            // 7) ΜΤΠΥ
+            await step('ΜΤΠΥ', async () => {
+                if ((parseFloat($('w-mtpyyrs').value) || 0) > 0) { autoFillMTPYFromPension(); }
+                else {
+                    if ($('mtpy-result')) $('mtpy-result').innerHTML = '';
+                    warns.push('Δεν συμπλήρωσες «Έτη με εισφορές ΜΤΠΥ» – παραλείφθηκε το ΜΤΠΥ.');
+                }
+            });
+
+            // 8) εφάπαξ
+            await step('εφάπαξ', async () => { transferPensionToEfapaxData(); });
+
+            // 9) συνολική εκκαθάριση / φόρος
+            await step('εκκαθάριση', async () => { calculateGlobalSummary(); });
+
+            render(yrsTxt, exitYear, exitMonth);
+            ran = true;
+        } finally {
+            window.alert = origAlert;
+            if (typeof origSwitch === 'function') window.switchToPensionTab = origSwitch;
+            alerts.filter(m => m.indexOf('❌') >= 0).forEach(m => warns.push(m.replace(/\n/g, ' ')));
+            warnBox(warns);
+            btn.disabled = false; btn.textContent = oldLabel;
+            running = false;
+        }
+    }
+
+    function render(yrsTxt, exitYear, exitMonth) {
+        const T = id => ($(id) ? ($(id).innerText || $(id).textContent) : '');
+        $('wz-results').style.display = 'block';
+        $('wz-net').textContent = fmt(numOf(T('final-monthly-net')));
+        $('wz-main').textContent = fmt(numOf(T('result-final-pension')));
+        $('wz-supp').textContent = fmt(numOf(T('total-supplementary-amount')));
+        $('wz-mtpy').textContent = fmt(numOf(T('result-mtpy-value')));
+        $('wz-efapax').textContent = fmt(numOf(T('finalEfapaxResult')));
+        $('wz-gross').textContent = fmt(numOf(T('final-total-gross')));
+        $('wz-tax').textContent = fmt(numOf(T('final-annual-tax')));
+        if ($('wz-gross-y')) $('wz-gross-y').textContent = fmt(numOf(T('final-annual-gross-val')));
+        const rows = [
+            ['Έτη υπηρεσίας / ασφάλισης', yrsTxt || '—'],
+            ['Ποσοστό αναπλήρωσης', T('result-percentage')],
+            ['Συντάξιμος μισθός κύριας', fmt(numOf(T('result-pensionable-salary')))],
+            ['Συντάξιμος μισθός επικουρικής/ΜΤΠΥ', fmt(numOf(T('result-pensionable-salary-supplementary')))],
+            ['Κύρια σύνταξη (χωρίς εθνική)', fmt(numOf(T('result-main-pension')))],
+            ['Εθνική σύνταξη', fmt(parseFloat($('national-pension').value) || 0)],
+            ['Κράτηση υγείας κύριας', fmt(numOf(T('result-health-deduction')))],
+            ['Έξοδος (έτος / μήνας)', exitYear + ' / ' + exitMonth]
+        ];
+        $('wz-details').innerHTML = rows.map(r => '<span>' + r[0] + '</span><b>' + r[1] + '</b>').join('');
+    }
+
+    window.wizardRunAll = runAll;
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 2200));
+    else setTimeout(init, 2200);
+})();
+</script>
+
+
+<script>
+// =====================================================================
+// ΑΥΤΟΜΑΤΗ ΕΝΗΜΕΡΩΣΗ "ΣΥΝΟΛΙΚΗΣ ΕΚΚΑΘΑΡΙΣΗΣ" (καθαρό μηνιαίο μετά φόρο) στην καρτέλα ΥΠΟΛ ΣΥΝΤΑΞΗΣ.
+// Μέχρι τώρα ενημερωνόταν μόνο όταν άλλαζε η επικουρική και μόνο αν η καρτέλα ήταν ανοιχτή.
+// Τώρα ανανεώνεται κάθε φορά που υπολογίζεται κύρια σύνταξη, επικουρική ή ΜΤΠΥ,
+// καθώς και όταν ανοίγεις την καρτέλα.
+// =====================================================================
+(function () {
+    function refreshSummary() {
+        try { if (typeof calculateGlobalSummary === 'function') calculateGlobalSummary(); } catch (e) { console.error(e); }
+    }
+    function hook(name) {
+        const orig = window[name];
+        if (typeof orig !== 'function' || orig.__summaryHooked) return;
+        const wrapped = function () {
+            const r = orig.apply(this, arguments);
+            refreshSummary();
+            return r;
+        };
+        wrapped.__summaryHooked = true;
+        window[name] = wrapped;
+    }
+    ['calculateFinalPension', 'calculateMTPY', 'updateTotalSupplementary'].forEach(hook);
+    document.addEventListener('DOMContentLoaded', function () {
+        const tab = document.querySelector('.calc-type-btn[data-calc="pensionable-earnings"]');
+        if (tab) tab.addEventListener('click', () => setTimeout(refreshSummary, 50));
     });
 })();
 </script>
