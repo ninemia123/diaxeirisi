@@ -2864,6 +2864,10 @@ https://www.opengov.gr/ypes/?p=8739<p>
         <div class="wz-grid3">
           <div class="form-group"><label for="w-p667">Εξαγορά 6,67% (μήνες)</label><input type="number" id="w-p667" inputmode="decimal" min="0"></div><div class="form-group"><label for="w-p20">Εξαγορά 20% (μήνες)</label><input type="number" id="w-p20" inputmode="decimal" min="0"></div><div class="form-group"><label for="w-p20y">Έτος εξαγοράς 20%</label><input type="number" id="w-p20y" inputmode="decimal" min="1900" max="2100"></div>
         </div>
+        <div class="wz-sub">Μαχητική πενταετία (Μ5ετία) <small>(προστίθεται μόνο στα έτη για ποσοστό αναπλήρωσης)</small></div>
+        <div class="wz-grid3">
+          <div class="form-group"><label for="w-m5">Έτη (1–5)</label><input type="number" id="w-m5" inputmode="numeric" min="0" max="5" step="1"></div>
+        </div>
         <div class="wz-sub">Χρόνος σε άλλον φορέα</div>
         <div class="wz-grid3">
           <div class="form-group"><label for="w-oth-y">Έτη</label><input type="number" id="w-oth-y" inputmode="decimal" min="0" max="50"></div><div class="form-group"><label for="w-oth-m">Μήνες</label><input type="number" id="w-oth-m" inputmode="decimal" min="0" max="11"></div><div class="form-group"><label for="w-oth-d">Ημέρες</label><input type="number" id="w-oth-d" inputmode="decimal" min="0" max="30"></div>
@@ -4586,6 +4590,12 @@ function formatBenefitAmounts(benefit) {
             <div class="form-group">
                 <label for="purchase-year-20">Έτος εξαγοράς 20%:</label>
                 <input type="number" id="purchase-year-20" min="1900" max="2100" value="2024" class="year-input">
+            </div>
+
+            <div class="form-group">
+                <label for="m5-years">Μαχητική πενταετία (Μ5ετία) – έτη (1–5):</label>
+                <input type="number" id="m5-years" min="0" max="5" step="1" value="0" class="tiny-input">
+                <small>Προστίθενται μόνο στα έτη για ποσοστό αναπλήρωσης.</small>
             </div>
 
             <h4>Χρόνος σε Άλλον Φορέα</h4>
@@ -8157,7 +8167,11 @@ function calculateTotalYears() {
         const otherDays = parseInt(document.getElementById('other-entity-days').value) || 0;
 
         // ΣΥΝΟΛΟ
-        let finalYears = totalYears + recYears + otherYears;
+        // ΜΑΧΗΤΙΚΗ ΠΕΝΤΑΕΤΙΑ (Μ5ετία): 0-5 έτη, προστίθενται ΜΟΝΟ στα έτη για ποσοστό αναπλήρωσης
+        const m5El = document.getElementById('m5-years');
+        const m5Years = Math.min(5, Math.max(0, parseInt(m5El && m5El.value) || 0));
+        
+        let finalYears = totalYears + recYears + otherYears + m5Years;
         let finalMonths = totalMonths + recMonths + otherMonths + purchaseMonths667 + purchaseMonths20;
         let finalDays = totalDays + recDays + otherDays;
 
@@ -8175,7 +8189,7 @@ function calculateTotalYears() {
         // ΕΜΦΑΝΙΣΗ
         const resultElement = document.getElementById('total-years-result');
         if (resultElement) {
-            resultElement.innerHTML = `<strong>${finalYears} έτη, ${finalMonths} μήνες, ${finalDays} ημέρες</strong>`;
+            resultElement.innerHTML = `<strong>${finalYears} έτη, ${finalMonths} μήνες, ${finalDays} ημέρες</strong>` + (m5Years > 0 ? ` <small>(περιλαμβάνει Μ5ετία ${m5Years} έτη)</small>` : '');
         }
 
     } catch (error) {
@@ -8189,7 +8203,7 @@ function setup20000708Events() {
         'service-start-date', 'service-end-date',
         'years-recognition', 'months-recognition', 'days-recognition',
         'purchase-months-667', 'purchase-months-20',
-        'other-entity-years', 'other-entity-months', 'other-entity-days'
+        'other-entity-years', 'other-entity-months', 'other-entity-days', 'm5-years'
     ];
     
     inputs.forEach(id => {
@@ -10791,7 +10805,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ['w-start','service-start-date'],['w-end','service-end-date'],['w-pre93','is-pre-1993','c'],
         ['w-rec-y','years-recognition'],['w-rec-m','months-recognition'],['w-rec-d','days-recognition'],
         ['w-p667','purchase-months-667'],['w-p20','purchase-months-20'],['w-p20y','purchase-year-20'],
-        ['w-oth-y','other-entity-years'],['w-oth-m','other-entity-months'],['w-oth-d','other-entity-days'],
+        ['w-m5','m5-years'],['w-oth-y','other-entity-years'],['w-oth-m','other-entity-months'],['w-oth-d','other-entity-days'],
         ['w-marr','marriage-date'],['w-marr-x','marriage-deduction'],
         ['w-c1','child1-date'],['w-c1x','child1-deduction'],['w-c2','child2-date'],['w-c2x','child2-deduction'],
         ['w-c3','child3-date'],['w-c3x','child3-deduction'],['w-c4','child4-date'],['w-c4x','child4-deduction'],
@@ -10835,6 +10849,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!w || !o) { console.warn('wizard: λείπει πεδίο', wid, oid); return; }
             const handlerW = (e) => {
                 if (wid === 'w-years' && e && e.isTrusted) w.dataset.touched = '1';
+                if (wid === 'w-m5' && w.value !== '') { const c = Math.min(5, Math.max(0, parseInt(w.value) || 0)); if (String(c) !== w.value && e && e.type === 'change') w.value = String(c); }
                 toOld(wid, oid, kind);
                 schedule();
             };
@@ -10940,7 +10955,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         $('w-years').value = m[1]; $('total-years-pension').value = m[1];
                     }
                 }
-                $('w-years-info').textContent = yrsTxt ? ('Υπολογίστηκαν: ' + yrsTxt + ($('w-years').dataset.touched ? ' (έχεις βάλει δικό σου αριθμό)' : '')) : '';
+                const m5v = Math.min(5, Math.max(0, parseInt($('w-m5').value) || 0));
+                $('w-years-info').textContent = yrsTxt ? ('Υπολογίστηκαν: ' + yrsTxt + (m5v > 0 ? ' (με Μ5ετία ' + m5v + ')' : '') + ($('w-years').dataset.touched ? ' – έχεις βάλει δικό σου αριθμό' : '')) : '';
                 updatePensionPercentage();
                 calculateFinalPension();
             });
