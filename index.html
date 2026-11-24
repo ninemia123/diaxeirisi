@@ -2873,6 +2873,7 @@ https://www.opengov.gr/ypes/?p=8739<p>
           <div class="form-group"><label for="w-oth-y">Έτη</label><input type="number" id="w-oth-y" inputmode="decimal" min="0" max="50"></div><div class="form-group"><label for="w-oth-m">Μήνες</label><input type="number" id="w-oth-m" inputmode="decimal" min="0" max="11"></div><div class="form-group"><label for="w-oth-d">Ημέρες</label><input type="number" id="w-oth-d" inputmode="decimal" min="0" max="30"></div>
         </div>
       </details>
+      <div class="wz-years-box">Συνολικά Έτη: <strong id="wz-total-years">0 έτη, 0 μήνες, 0 ημέρες</strong></div>
     </details>
 
     <details class="wz-card">
@@ -10760,6 +10761,8 @@ document.addEventListener('DOMContentLoaded', function() {
 .wz-hero { background: #1b5e20; color: #fff; border-radius: 12px; padding: .9rem 1rem; text-align: center; margin-bottom: .6rem; }
 .wz-hero span { display: block; font-size: .9rem; opacity: .9; }
 .wz-hero strong { display: block; font-size: 1.9rem; margin-top: .2rem; }
+.wz-years-box { margin-top: .7rem; padding: .6rem .8rem; border-radius: 8px; background: #e8f5e9; color: #1b3a1d; border-left: 4px solid #2e7d32; font-size: 1rem; }
+.wz-years-box strong { color: #1b5e20; }
 .wz-liq { background: #f1f8e9; color: #1b3a1d; border: 2px solid #2e7d32; border-radius: 12px; padding: .8rem .9rem; margin-bottom: .7rem; }
 .wz-liq h5 { margin: 0 0 .6rem; text-align: center; color: #1b5e20; font-size: 1.05rem; }
 .wz-liq-row { display: flex; justify-content: space-between; gap: .6rem; padding: .35rem 0; border-bottom: 1px solid #c8e6c9; }
@@ -10842,6 +10845,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     function syncAllFromOld() { MAP.forEach(([w, o, k]) => toWiz(w, o, k)); }
 
+    // "Συνολικά Έτη": ίδιος υπολογισμός με την καρτέλα 2000/07/08, άμεση ενημέρωση
+    function refreshYears() {
+        try { if (typeof calculateTotalYears === 'function') calculateTotalYears(); } catch (e) {}
+        const o = $('total-years-result'), w = $('wz-total-years');
+        if (o && w) w.innerHTML = o.innerHTML;
+    }
+
     function init() {
         if (!$('wizard-calc')) return;
         MAP.forEach(([wid, oid, kind]) => {
@@ -10851,6 +10861,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (wid === 'w-years' && e && e.isTrusted) w.dataset.touched = '1';
                 if (wid === 'w-m5' && w.value !== '') { const c = Math.min(5, Math.max(0, parseInt(w.value) || 0)); if (String(c) !== w.value && e && e.type === 'change') w.value = String(c); }
                 toOld(wid, oid, kind);
+                refreshYears();
                 schedule();
             };
             w.addEventListener('input', handlerW);
@@ -10858,11 +10869,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const handlerO = (e) => {
                 if (oid === 'total-years-pension' && e && e.isTrusted && $('w-years')) $('w-years').dataset.touched = '1';
                 toWiz(wid, oid, kind);
+                refreshYears();
             };
             o.addEventListener('input', handlerO);
             o.addEventListener('change', handlerO);
         });
         syncAllFromOld();
+        refreshYears();
         $('wz-run').addEventListener('click', () => runAll());
         $('w-years-auto').addEventListener('click', () => { $('w-years').dataset.touched = ''; runAll(); });
         document.querySelectorAll('#wizard-calc [data-open]').forEach(b => {
@@ -10873,7 +10886,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         // όταν ανοίγει η καρτέλα, ξανα-συγχρονισμός (π.χ. αν άλλαξαν στοιχεία στις παλιές καρτέλες)
         const tabBtn = document.querySelector('.calc-type-btn[data-calc="wizard"]');
-        if (tabBtn) tabBtn.addEventListener('click', syncAllFromOld);
+        if (tabBtn) tabBtn.addEventListener('click', () => { syncAllFromOld(); refreshYears(); });
     }
 
     function schedule() {
@@ -11009,6 +11022,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function render(yrsTxt, exitYear, exitMonth) {
+        refreshYears();
         const T = id => ($(id) ? ($(id).innerText || $(id).textContent) : '');
         $('wz-results').style.display = 'block';
         $('wz-net').textContent = fmt(numOf(T('final-monthly-net')));
